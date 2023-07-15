@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -127,6 +129,18 @@ public class BattlePassManager extends WorldSavedData {
 	public static int getClaimedRanks(UUID uuid) {
 		BattlePassManager bpm = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
 		return bpm.DATA.get(uuid).claimedRanks;
+	}
+	
+	public static void sendPlayerInfo(ServerPlayerEntity player, int pointsGained) {
+		player.displayClientMessage(new StringTextComponent(
+				"+" + pointsGained + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
+				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/1000"), true);
+	}
+	
+	public static void sendPlayerInfo(ServerPlayerEntity player) {
+		player.displayClientMessage(new StringTextComponent(
+				"Rank " + BattlePassManager.getRank(player.getUUID()) + 
+				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/1000"), true);
 	}
 	
 	static class BattlePass {

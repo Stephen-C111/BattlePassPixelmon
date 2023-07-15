@@ -28,9 +28,7 @@ public class PXListeners {
 			Pokemon poke = (Pokemon) event.getPokemon();
 			int realValue = baseValue * poke.getPokemonLevel();
 			BattlePassManager.grantProgress(uuid, realValue, false);
-			player.sendMessage(new StringTextComponent(
-					"+" + realValue + " points! You are rank " + BattlePassManager.getRank(uuid) + 
-					", with " + BattlePassManager.getRankProgress(uuid) + "/1000 points."), uuid);
+			BattlePassManager.sendPlayerInfo(player, realValue);
 			
 		}
 	}
