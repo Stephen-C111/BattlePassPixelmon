@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.pixelmonmod.pixelmon.Pixelmon;
-import com.scproductions.helloworld.PXListener;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
