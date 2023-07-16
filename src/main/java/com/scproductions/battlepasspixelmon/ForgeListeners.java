@@ -1,5 +1,6 @@
 package com.scproductions.battlepasspixelmon;
 
+import com.scproductions.battlepasspixelmon.commands.CheckRankCommand;
 import com.scproductions.battlepasspixelmon.commands.ClaimRewardsCommand;
 
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -14,7 +15,7 @@ public class ForgeListeners {
 	public static void onCommandsRegister(RegisterCommandsEvent event) {
 		//Add new command classes below
 		new ClaimRewardsCommand(event.getDispatcher());
-		
+		new CheckRankCommand(event.getDispatcher());
 		
 		ConfigCommand.register(event.getDispatcher());
 	}

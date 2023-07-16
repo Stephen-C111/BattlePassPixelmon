@@ -140,6 +140,13 @@ public class BattlePassManager extends WorldSavedData {
 		return bpm.DATA.get(uuid).claimedRanks;
 	}
 	
+	//This will appear on the player's chatbox.
+	public static void sendPlayerInfoToChat(ServerPlayerEntity player, int pointsGained, String reason) {
+		player.sendMessage(new StringTextComponent(
+				reason + " +" + pointsGained + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
+				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/1000"), player.getUUID());
+	}
+	
 	//This will appear above the player's toolbar for a brief period of time.
 	public static void sendPlayerInfo(ServerPlayerEntity player, int pointsGained) {
 		player.displayClientMessage(new StringTextComponent(

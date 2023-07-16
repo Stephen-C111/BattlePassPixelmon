@@ -1,12 +1,19 @@
 package com.scproductions.battlepasspixelmon;
 
+import java.util.Random;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.pixelmonmod.pixelmon.api.events.ApricornEvent;
+import com.pixelmonmod.pixelmon.api.events.BeatWildPixelmonEvent;
+import com.pixelmonmod.pixelmon.api.events.EggHatchEvent;
+import com.pixelmonmod.pixelmon.api.events.EvolveEvent;
+import com.pixelmonmod.pixelmon.api.events.FishingEvent;
 import com.pixelmonmod.pixelmon.api.events.PokemonReceivedEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import com.pixelmonmod.pixelmon.battles.controller.participants.WildPixelmonParticipant;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -14,13 +21,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class PXListeners {
 	
 	private static final Logger LOGGER = LogManager.getLogger("BattlePassPixelmon");
+	Random random = new Random();
 	
-	@SubscribeEvent
+	@SubscribeEvent //confirmed working
 	public void onPokemonCatch(PokemonReceivedEvent event) {
-		
-		
-		
-		LOGGER.info("Pokemon Caught!!! " + event.getCause());
 		ServerPlayerEntity player =  event.getPlayer();
 		if (event.getCause() == "PokeBall") {
 			UUID uuid = player.getUUID();
@@ -39,5 +43,79 @@ public class PXListeners {
 				BattlePassManager.sendPlayerInfo(player, realValue);
 			}
 		}
+	}
+	
+	@SubscribeEvent //confirmed working
+	public void onPokemonDefeat(BeatWildPixelmonEvent event) {
+		ServerPlayerEntity player = event.player;
+		UUID uuid = player.getUUID();
+		WildPixelmonParticipant wpp = event.wpp;
+		Pokemon poke = wpp.getFaintedPokemon().pokemon;
+		if (poke.isLegendary()) {
+			int baseValue = BattlePassConfig.pokemon_defeat_legendary_base_reward.get();
+			int realValue = baseValue;
+			BattlePassManager.grantProgress(uuid, realValue, false);
+			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated Legendary:");
+		}
+		else {
+			int baseValue = BattlePassConfig.pokemon_defeat_base_reward.get();
+			int realValue = baseValue * (poke.getPokemonLevel() / 25 + 1);
+			BattlePassManager.grantProgress(uuid, realValue, false);
+			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated Pokemon:");
+		}
+	}
+	
+	@SubscribeEvent //confirmed working
+	public void onApricornPick(ApricornEvent.Pick event) {
+		ServerPlayerEntity player = event.getPlayer();
+		UUID uuid = player.getUUID();
+		int baseValue = 1;
+		
+		int chance = random.nextInt(101);
+		if (chance == 100) {
+			BattlePassManager.grantProgress(uuid, baseValue * 2, false);
+			BattlePassManager.sendPlayerInfo(player, baseValue * 2);
+		}
+		else if (chance > 92) {
+			BattlePassManager.grantProgress(uuid, baseValue, false);
+			BattlePassManager.sendPlayerInfo(player, baseValue);
+		}
+	}
+	
+	@SubscribeEvent //TODO fires twice for some reason.
+	public void onEggHatch(EggHatchEvent.Pre event) {
+		ServerPlayerEntity player = event.getPlayer();
+		UUID uuid = player.getUUID();
+		int baseValue = 1;
+		Pokemon poke = event.getPokemon();
+		LOGGER.info(event.getResult());
+		if (poke.isEgg()) {
+			return;
+		}
+		int[] ivs = poke.getIVs().getArray();
+		int perfectIVs = 1;
+		for (int i = 0; i < 6; i++) {
+			if (ivs[i] == 31) {
+				perfectIVs++;
+			}
+		}
+		int realValue = baseValue * perfectIVs;
+		BattlePassManager.grantProgress(uuid, realValue, false);
+		BattlePassManager.sendPlayerInfoToChat(player, realValue, perfectIVs - 1 + " IV Egg hatched:");
+	}
+	
+	@SubscribeEvent //confirmed working
+	public void onEvolve(EvolveEvent.Post event) {
+		ServerPlayerEntity player = event.getPlayer();
+		UUID uuid = player.getUUID();
+		int baseValue = 1;
+		Pokemon poke = event.getPokemon();
+		BattlePassManager.grantProgress(uuid, baseValue, false);
+		BattlePassManager.sendPlayerInfoToChat(player, baseValue, "Evolved Pokemon:");
+	}
+	
+	@SubscribeEvent
+	public void onReelCatch(FishingEvent.Catch event) {
+		LOGGER.info("FishingEvent fired.");
 	}
 }
