@@ -115,22 +115,32 @@ public class BattlePassManager extends WorldSavedData {
 			putData(bp, ServerLifecycleHooks.getCurrentServer().overworld());
 		}
 	}
-	
+	//The get commands below will issue -999 if the uuid specified has no entry, to avoid crashing the server.
 	public static int getRank(UUID uuid) {
 		BattlePassManager bpm = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
+		if (bpm.DATA.containsKey(uuid) == false) {
+			return -999;
+		}
 		return bpm.DATA.get(uuid).rank;
 	}
 	
 	public static int getRankProgress(UUID uuid) {
 		BattlePassManager bpm = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
+		if (bpm.DATA.containsKey(uuid) == false) {
+			return -999;
+		}
 		return bpm.DATA.get(uuid).rankProgress;
 	}
 	
 	public static int getClaimedRanks(UUID uuid) {
 		BattlePassManager bpm = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
+		if (bpm.DATA.containsKey(uuid) == false) {
+			return -999;
+		}
 		return bpm.DATA.get(uuid).claimedRanks;
 	}
 	
+	//This will appear above the player's toolbar for a brief period of time.
 	public static void sendPlayerInfo(ServerPlayerEntity player, int pointsGained) {
 		player.displayClientMessage(new StringTextComponent(
 				"+" + pointsGained + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
@@ -141,6 +151,11 @@ public class BattlePassManager extends WorldSavedData {
 		player.displayClientMessage(new StringTextComponent(
 				"Rank " + BattlePassManager.getRank(player.getUUID()) + 
 				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/1000"), true);
+	}
+	
+	public static void claimRewards(ServerPlayerEntity player) {
+		UUID uuid = player.getUUID();
+		player.sendMessage(new StringTextComponent("You activated the claim command."), uuid);
 	}
 	
 	static class BattlePass {
