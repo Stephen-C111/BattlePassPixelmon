@@ -7,6 +7,8 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
@@ -162,7 +164,13 @@ public class BattlePassManager extends WorldSavedData {
 	
 	public static void claimRewards(ServerPlayerEntity player) {
 		UUID uuid = player.getUUID();
-		player.sendMessage(new StringTextComponent("You activated the claim command."), uuid);
+		int claimed = getClaimedRanks(uuid);
+		int rank = getRank(uuid);
+		for (int i = claimed; i < rank; i++) {
+			//TODO replace this with escalating xp candy rewards.
+			player.addItem(new ItemStack(Items.ICE));		
+			}
+		putData(uuid, rank, getRankProgress(uuid), rank);
 	}
 	
 	static class BattlePass {
