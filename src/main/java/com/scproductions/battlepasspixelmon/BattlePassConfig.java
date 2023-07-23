@@ -25,7 +25,7 @@ public class BattlePassConfig {
     	pokemon_defeat_legendary_base_reward = BUILDER.comment("The base payout for defeating a legendary pokemon").define("PokemonDefeatLegendaryBaseReward", 50);
     	
     	required_progress_to_rank = BUILDER.comment("The required amount of progress to rank up.").define("ProgressNeededForRankUp", 1000);
-    	max_rank = BUILDER.comment("The maximum rank a player can achieve.").define("ProgressNeededForRankUp", 999999);
+    	max_rank = BUILDER.comment("The maximum rank a player can achieve.").define("MaxRank", 999999);
     	
     	BUILDER.pop();
     	SPEC = BUILDER.build();

@@ -6,17 +6,20 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import com.pixelmonmod.pixelmon.api.enums.ExperienceGainType;
-import com.pixelmonmod.pixelmon.items.ExpCandyItem;
+import com.pixelmonmod.pixelmon.Pixelmon;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonItems;
+import com.pixelmonmod.pixelmon.items.PixelmonItem;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 public class BattlePassManager extends WorldSavedData {
 	
@@ -167,10 +170,11 @@ public class BattlePassManager extends WorldSavedData {
 		int claimed = getClaimedRanks(uuid);
 		int rank = getRank(uuid);
 		int amount = rank - claimed;
+		Vector3d coords = player.getPacketCoordinates();
+		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
 		for (int i = claimed; i < rank; i++) {
-			//TODO replace this with escalating xp candy rewards.
-			ExpCandyItem item = new ExpCandyItem(ExperienceGainType.EXTRA_LARGE_EXP_CANDY, 1);
-			player.addItem(new ItemStack(item));		
+			//TODO figure out why this line causes an exception.
+			ItemHandlerHelper.giveItemToPlayer(player, new ItemStack(PixelmonItems.xl_exp_candy, 1));
 			}
 		player.sendMessage(new StringTextComponent(
 				"Claimed " + amount + " ranks."), player.getUUID());
