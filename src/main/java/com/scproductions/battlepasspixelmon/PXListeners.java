@@ -74,7 +74,7 @@ public class PXListeners {
 	public void onApricornPick(ApricornEvent.Pick event) {
 		ServerPlayerEntity player = event.getPlayer();
 		UUID uuid = player.getUUID();
-		int baseValue = 1;
+		int baseValue = BattlePassConfig.apricorn_pick_base_reward.get();
 		
 		int chance = random.nextInt(101);
 		if (chance == 100) {
@@ -91,7 +91,7 @@ public class PXListeners {
 	public void onEggHatch(EggHatchEvent.Pre event) {
 		ServerPlayerEntity player = event.getPlayer();
 		UUID uuid = player.getUUID();
-		int baseValue = 1;
+		int baseValue = BattlePassConfig.egg_hatch_base_reward.get();
 		Pokemon poke = event.getPokemon();
 		
 		if (hatchSwitch && BattlePassConfig.use_hatch_dupe_fix.get()) { //prevent double firing of hatch event for progress.
@@ -118,10 +118,17 @@ public class PXListeners {
 	public void onEvolve(EvolveEvent.Post event) {
 		ServerPlayerEntity player = event.getPlayer();
 		UUID uuid = player.getUUID();
-		int baseValue = 1;
+		int baseValue = BattlePassConfig.pokemon_evolve_base_reward.get();
 		Pokemon poke = event.getPokemon();
-		BattlePassManager.grantProgress(uuid, baseValue, false);
-		BattlePassManager.sendPlayerInfoToChat(player, baseValue, "Evolved Pokemon:");
+		if (poke.isLegendary(true)) {
+			BattlePassManager.grantProgress(uuid, baseValue * 10, false);
+			BattlePassManager.sendPlayerInfoToChat(player, baseValue, "Evolved a Legendary Pokemon:");
+		}
+		else {
+			BattlePassManager.grantProgress(uuid, baseValue, false);
+			BattlePassManager.sendPlayerInfoToChat(player, baseValue, "Evolved Pokemon:");
+		}
+		
 	}
 	
 	@SubscribeEvent
