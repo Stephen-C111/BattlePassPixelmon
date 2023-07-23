@@ -16,6 +16,8 @@ public class BattlePassConfig {
     public static final ForgeConfigSpec.ConfigValue<Integer> required_progress_to_rank;
     public static final ForgeConfigSpec.ConfigValue<Integer> max_rank;
     
+    public static final ForgeConfigSpec.ConfigValue<Boolean> use_hatch_dupe_fix;
+    
     static {
     	BUILDER.push("Config for BattlePassPixelmon");
     	
@@ -26,6 +28,9 @@ public class BattlePassConfig {
     	
     	required_progress_to_rank = BUILDER.comment("The required amount of progress to rank up.").define("ProgressNeededForRankUp", 1000);
     	max_rank = BUILDER.comment("The maximum rank a player can achieve.").define("MaxRank", 999999);
+    	
+    	use_hatch_dupe_fix = BUILDER.comment("Use the boolean switch method to prevent double firing of the hatch event. Change to false if hatching grants no progress.")
+    			.define("UseHatchDupeFix", true);
     	
     	BUILDER.pop();
     	SPEC = BUILDER.build();

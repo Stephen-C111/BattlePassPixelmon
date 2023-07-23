@@ -1,5 +1,7 @@
 package com.scproductions.battlepasspixelmon;
 
+import java.sql.Time;
+import java.time.LocalTime;
 import java.util.Random;
 import java.util.UUID;
 
@@ -21,6 +23,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class PXListeners {
 	
 	private static final Logger LOGGER = LogManager.getLogger("BattlePassPixelmon");
+	
+	boolean hatchSwitch = false;
+	
 	Random random = new Random();
 	
 	@SubscribeEvent //confirmed working
@@ -82,16 +87,21 @@ public class PXListeners {
 		}
 	}
 	
-	@SubscribeEvent //TODO fires twice for some reason.
+	@SubscribeEvent //confirmed working
 	public void onEggHatch(EggHatchEvent.Pre event) {
 		ServerPlayerEntity player = event.getPlayer();
 		UUID uuid = player.getUUID();
 		int baseValue = 1;
 		Pokemon poke = event.getPokemon();
-		LOGGER.info(event.getResult());
-		if (poke.isEgg()) {
+		
+		if (hatchSwitch && BattlePassConfig.use_hatch_dupe_fix.get()) { //prevent double firing of hatch event for progress.
+			hatchSwitch = false;
 			return;
 		}
+		else {
+			hatchSwitch = true;
+		}
+		
 		int[] ivs = poke.getIVs().getArray();
 		int perfectIVs = 1;
 		for (int i = 0; i < 6; i++) {
