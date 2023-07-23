@@ -6,12 +6,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import com.pixelmonmod.pixelmon.Pixelmon;
 import com.pixelmonmod.pixelmon.api.registries.PixelmonItems;
-import com.pixelmonmod.pixelmon.items.PixelmonItem;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.vector.Vector3d;
@@ -166,19 +163,24 @@ public class BattlePassManager extends WorldSavedData {
 	}
 	
 	public static void claimRewards(ServerPlayerEntity player) {
+		int MAX_CLAIMS_ALLOWED = 512; //prevent flooding the world with thousands of items.
 		UUID uuid = player.getUUID();
 		int claimed = getClaimedRanks(uuid);
 		int rank = getRank(uuid);
 		int amount = rank - claimed;
-		Vector3d coords = player.getPacketCoordinates();
-		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
-		for (int i = claimed; i < rank; i++) {
-			//TODO figure out why this line causes an exception.
-			ItemHandlerHelper.giveItemToPlayer(player, new ItemStack(PixelmonItems.xl_exp_candy, 1));
+		
+		if (amount > MAX_CLAIMS_ALLOWED) {
+			amount = MAX_CLAIMS_ALLOWED;
+		}
+		
+		for (int i = 0; i < amount; i++) {
+			claimed++;
+			ItemStack stack = new ItemStack(PixelmonItems.xl_exp_candy);
+			ItemHandlerHelper.giveItemToPlayer(player, stack);
 			}
 		player.sendMessage(new StringTextComponent(
 				"Claimed " + amount + " ranks."), player.getUUID());
-		putData(uuid, rank, getRankProgress(uuid), rank);
+		putData(uuid, rank, getRankProgress(uuid), claimed);
 	}
 	
 	static class BattlePass {
