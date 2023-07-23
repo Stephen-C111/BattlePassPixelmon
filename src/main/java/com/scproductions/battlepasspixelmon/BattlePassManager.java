@@ -24,9 +24,6 @@ public class BattlePassManager extends WorldSavedData {
 	
 	private final Map<UUID, BattlePass> DATA = new HashMap<UUID, BattlePass>();
 	
-	public static final int MAXPROGRESS = 1000;
-	public static final int MAXRANK = 999999;
-	
 	//Constructor used by calling world.getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
 	public BattlePassManager(String p_i2141_1_) {
 		super(p_i2141_1_);
@@ -109,13 +106,13 @@ public class BattlePassManager extends WorldSavedData {
 				}
 			}
 			bp.rankProgress += progress;
-			while (bp.rankProgress >= MAXPROGRESS) {
-				bp.rankProgress -= MAXPROGRESS;
+			while (bp.rankProgress >= BattlePassConfig.required_progress_to_rank.get() && bp.rank < BattlePassConfig.max_rank.get()) {
+				bp.rankProgress -= BattlePassConfig.required_progress_to_rank.get();
 				bp.rank++;
 			}
 			while (allowDemotion && bp.rankProgress < 0) {
 				bp.rank--;
-				bp.rankProgress += MAXPROGRESS;
+				bp.rankProgress += BattlePassConfig.required_progress_to_rank.get();
 			}
 			putData(bp, ServerLifecycleHooks.getCurrentServer().overworld());
 		}
@@ -149,20 +146,20 @@ public class BattlePassManager extends WorldSavedData {
 	public static void sendPlayerInfoToChat(ServerPlayerEntity player, int pointsGained, String reason) {
 		player.sendMessage(new StringTextComponent(
 				reason + " +" + pointsGained + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
-				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/1000"), player.getUUID());
+				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/" + BattlePassConfig.required_progress_to_rank.get()), player.getUUID());
 	}
 	
 	//This will appear above the player's toolbar for a brief period of time.
 	public static void sendPlayerInfo(ServerPlayerEntity player, int pointsGained) {
 		player.displayClientMessage(new StringTextComponent(
 				"+" + pointsGained + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
-				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/1000"), true);
+				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/" + BattlePassConfig.required_progress_to_rank.get()), true);
 	}
 	
 	public static void sendPlayerInfo(ServerPlayerEntity player) {
 		player.displayClientMessage(new StringTextComponent(
 				"Rank " + BattlePassManager.getRank(player.getUUID()) + 
-				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/1000"), true);
+				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/" + BattlePassConfig.required_progress_to_rank.get()), true);
 	}
 	
 	public static void claimRewards(ServerPlayerEntity player) {

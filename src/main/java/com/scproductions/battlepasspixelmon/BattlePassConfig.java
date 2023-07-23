@@ -13,6 +13,9 @@ public class BattlePassConfig {
     public static final ForgeConfigSpec.ConfigValue<Integer> pokemon_catch_legendary_base_reward;
     public static final ForgeConfigSpec.ConfigValue<Integer> pokemon_defeat_legendary_base_reward;
     
+    public static final ForgeConfigSpec.ConfigValue<Integer> required_progress_to_rank;
+    public static final ForgeConfigSpec.ConfigValue<Integer> max_rank;
+    
     static {
     	BUILDER.push("Config for BattlePassPixelmon");
     	
@@ -20,6 +23,9 @@ public class BattlePassConfig {
     	pokemon_catch_legendary_base_reward = BUILDER.comment("The base payout for catching a legendary pokemon.").define("PokemonDefeatBaseReward", 200);
     	pokemon_defeat_base_reward = BUILDER.comment("The base payout for defeating a pokemon before calculating pokemon level.").define("PokemonCatchLegendaryBaseReward", 1);
     	pokemon_defeat_legendary_base_reward = BUILDER.comment("The base payout for defeating a legendary pokemon").define("PokemonDefeatLegendaryBaseReward", 50);
+    	
+    	required_progress_to_rank = BUILDER.comment("The required amount of progress to rank up.").define("ProgressNeededForRankUp", 1000);
+    	max_rank = BUILDER.comment("The maximum rank a player can achieve.").define("ProgressNeededForRankUp", 999999);
     	
     	BUILDER.pop();
     	SPEC = BUILDER.build();
