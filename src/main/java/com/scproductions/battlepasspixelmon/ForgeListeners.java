@@ -2,6 +2,8 @@ package com.scproductions.battlepasspixelmon;
 
 import com.scproductions.battlepasspixelmon.commands.CheckRankCommand;
 import com.scproductions.battlepasspixelmon.commands.ClaimRewardsCommand;
+import com.scproductions.battlepasspixelmon.commands.GiveProgressCommand;
+import com.scproductions.battlepasspixelmon.commands.GiveSelfProgressCommand;
 
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -16,6 +18,8 @@ public class ForgeListeners {
 		//Add new command classes below
 		new ClaimRewardsCommand(event.getDispatcher());
 		new CheckRankCommand(event.getDispatcher());
+		new GiveProgressCommand(event.getDispatcher());
+		new GiveSelfProgressCommand(event.getDispatcher());
 		
 		ConfigCommand.register(event.getDispatcher());
 	}

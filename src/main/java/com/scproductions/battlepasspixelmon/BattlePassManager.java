@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import com.pixelmonmod.pixelmon.api.enums.ExperienceGainType;
+import com.pixelmonmod.pixelmon.items.ExpCandyItem;
+
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -106,11 +109,11 @@ public class BattlePassManager extends WorldSavedData {
 				}
 			}
 			bp.rankProgress += progress;
-			if (bp.rankProgress >= MAXPROGRESS) {
+			while (bp.rankProgress >= MAXPROGRESS) {
 				bp.rankProgress -= MAXPROGRESS;
 				bp.rank++;
 			}
-			else if (allowDemotion && bp.rankProgress < 0) {
+			while (allowDemotion && bp.rankProgress < 0) {
 				bp.rank--;
 				bp.rankProgress += MAXPROGRESS;
 			}
@@ -166,10 +169,14 @@ public class BattlePassManager extends WorldSavedData {
 		UUID uuid = player.getUUID();
 		int claimed = getClaimedRanks(uuid);
 		int rank = getRank(uuid);
+		int amount = rank - claimed;
 		for (int i = claimed; i < rank; i++) {
 			//TODO replace this with escalating xp candy rewards.
-			player.addItem(new ItemStack(Items.ICE));		
+			ExpCandyItem item = new ExpCandyItem(ExperienceGainType.EXTRA_LARGE_EXP_CANDY, 1);
+			player.addItem(new ItemStack(item));		
 			}
+		player.sendMessage(new StringTextComponent(
+				"Claimed " + amount + " ranks."), player.getUUID());
 		putData(uuid, rank, getRankProgress(uuid), rank);
 	}
 	
