@@ -17,6 +17,7 @@ Commands:
 Tracked activities:
 Caught pokemon (Legendary bonus included)
 Defeated pokemon (Legendary bonus included)
+Defeated trainer (number of pokemon, level, and boss tier included)
 Evolved pokemon (Legendary bonus included, for typenull to silvally)
 Hatched pokemon (perfect (31) IV bonus included. Base reward is multiplied by number of perfect IVs)
 Successful Pixelmon and vanilla rod reel in
