@@ -63,6 +63,30 @@ public class PXListeners {
 		UUID uuid = player.getUUID();
 		WildPixelmonParticipant wpp = event.wpp;
 		Pokemon poke = wpp.getFaintedPokemon().pokemon;
+		/* TODO: implement pixelmon boss tier reward multiplier.
+		if (POKEMON IS A BOSS) { //figure out the api for this later.
+			switch (POKEMON BOSS TIER) {
+				case BossTiers.COMMON: realValue *= 1.25;
+				break;
+				case BossTiers.UNCOMMON: realValue *= 1.5;
+				break;
+				case BossTiers.RARE: realValue *= 1.75;
+				break;
+				case BossTiers.EPIC: realValue *= 2;
+				break;
+				case BossTiers.LEGENDARY: realValue *= 2.5;
+				break;
+				case BossTiers.ULTIMATE: realValue *= 3;
+				break;
+				case BossTiers.DROWNED: realValue *= 1.4;
+				break;
+				case BossTiers.EQUAL: realValue *= 1.2;
+				break;
+				case BossTiers.HAUNTED: realValue *= 1.4;
+				break;
+				default: break;
+			}
+		}*/
 		if (poke.isLegendary()) {
 			int baseValue = BattlePassConfig.pokemon_defeat_legendary_base_reward.get();
 			int realValue = baseValue;
@@ -158,41 +182,45 @@ public class PXListeners {
 	public void onTrainerDefeat(BeatTrainerEvent event) {
 		UUID uuid = event.player.getUUID();
 		NPCTrainer trainer = event.trainer;
+		int perPokeBase = BattlePassConfig.pokemon_defeat_base_reward.get() * 2;
 		int baseValue = BattlePassConfig.trainer_defeat_base_reward.get();
 		int realValue = baseValue;
 		String extraInfo = "";
 		
 		int level = trainer.getTrainerLevel();
-		
-		realValue *= 1 + (level / 20);
+		int numPokes = trainer.getPokemonStorage().countAll();
 		
 		if (trainer.getBossTier().isBoss()) {
-			extraInfo += trainer.getBossTier().toString().toLowerCase() + " ";
-			switch (trainer.getBossTier().toString()) {
-				case BossTiers.COMMON: realValue *= 1.2;
+			//LOGGER.info(trainer.getBossTier().getID() + "|" + trainer.getBossTier().toString() + "|" + trainer.getBossTier());
+			extraInfo += trainer.getBossTier().getID() + " ";
+			realValue *= 1 + 10;
+			switch (trainer.getBossTier().getID()) {
+				case BossTiers.COMMON: realValue += perPokeBase * 3 * numPokes;
 				break;
-				case BossTiers.UNCOMMON: realValue *= 1.4;
+				case BossTiers.UNCOMMON: realValue += perPokeBase * 6 * numPokes;
 				break;
-				case BossTiers.RARE: realValue *= 1.6;
+				case BossTiers.RARE: realValue += perPokeBase * 10 * numPokes;
 				break;
-				case BossTiers.EPIC: realValue *= 1.8;
+				case BossTiers.EPIC: realValue += perPokeBase * 15 * numPokes;
 				break;
-				case BossTiers.LEGENDARY: realValue *= 2.0;
+				case BossTiers.LEGENDARY: realValue += perPokeBase * 30 * numPokes;
 				break;
-				case BossTiers.ULTIMATE: realValue *= 2.2;
+				case BossTiers.ULTIMATE: realValue += perPokeBase * 60 * numPokes;
 				break;
-				case BossTiers.DROWNED: realValue *= 1.4;
+				case BossTiers.DROWNED: realValue += perPokeBase * 10 * numPokes;
 				break;
-				case BossTiers.EQUAL: realValue *= 1.2;
+				case BossTiers.EQUAL: realValue += perPokeBase * 3 * numPokes;
 				break;
-				case BossTiers.HAUNTED: realValue *= 1.4;
+				case BossTiers.HAUNTED: realValue += perPokeBase * 10 * numPokes;
 				break;
 				default: break;
 			}
-			
 		}
-			
-		extraInfo += "Level " + level;
+		else {
+			realValue *= (1 + (level / 75)) * numPokes;
+			extraInfo += "Level " + level;
+		}
+		
 		BattlePassManager.grantProgress(uuid, realValue, false);
 		BattlePassManager.sendPlayerInfoToChat(event.player, realValue, "Beat a " + extraInfo + " trainer:");
 	}

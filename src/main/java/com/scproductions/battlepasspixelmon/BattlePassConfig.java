@@ -32,7 +32,7 @@ public class BattlePassConfig {
     	pokemon_catch_legendary_base_reward = BUILDER.comment("The base payout for catching a legendary pokemon.").define("PokemonCatchLegendaryBaseReward", 200);
     	pokemon_defeat_base_reward = BUILDER.comment("The base payout for defeating a pokemon before calculating pokemon level.").define("PokemonDefeatBaseReward", 1);
     	pokemon_defeat_legendary_base_reward = BUILDER.comment("The base payout for defeating a legendary pokemon").define("PokemonDefeatLegendaryBaseReward", 50);
-    	trainer_defeat_base_reward = BUILDER.comment("The base payout for defeating a trainer. Scales with trainer level and boss type.").define("TrainerDefeatBaseReward", 2);
+    	trainer_defeat_base_reward = BUILDER.comment("The base payout for defeating a trainer. Scales with trainer level and boss type.").define("TrainerDefeatBaseReward", 4);
     	pokemon_evolve_base_reward = BUILDER.comment("The base payout for evolving a pokemon.").define("PokemonEvolveBaseReward", 10);
     	apricorn_pick_base_reward = BUILDER.comment("There's a 7% chance to get this reward, and a 1% chance to get double this reward.").define("ApricornPickBaseReward", 1);
     	egg_hatch_base_reward = BUILDER.comment("The base reward is multiplied by the number of perfect (31) ivs on the hatched pokemon + 1. 6IV with base of 10 = 70 points.").define("EggHatchBaseReward", 10);
