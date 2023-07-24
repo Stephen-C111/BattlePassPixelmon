@@ -31,7 +31,6 @@ public class Main
     private static final Logger LOGGER = LogManager.getLogger("BattlePassPixelmon");
     public static final String MOD_ID = "battlepasspixelmon";
     
-    
 
     public Main() {
         // Register the setup method for modloading
@@ -43,7 +42,7 @@ public class Main
         // Register the doClientStuff method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
         
-        ModLoadingContext.get().registerConfig(Type.COMMON, BattlePassConfig.SPEC, MOD_ID + "-commonconfig.toml");
+        ModLoadingContext.get().registerConfig(Type.COMMON, BattlePassConfig.SPEC, MOD_ID + "-commonconfig-0.3.1.toml");
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);

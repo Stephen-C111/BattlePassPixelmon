@@ -76,7 +76,8 @@ public class BattlePassManager extends WorldSavedData {
 	
 	public static void putData(UUID uuid, int rank, int rankProgress, int claimedRanks) {
 		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
-		BattlePassManager.putData(new BattlePass(uuid, rank, rankProgress, claimedRanks), world);
+		boolean dontSpam = BattlePassManager.getSpamDisallowed(uuid);
+		BattlePassManager.putData(new BattlePass(uuid, rank, rankProgress, claimedRanks, dontSpam), world);
 	}
 	
 	public static BattlePassManager getDataHandler(ServerWorld world) {
@@ -215,12 +216,12 @@ public class BattlePassManager extends WorldSavedData {
 		int claimedRanks;
 		boolean dontSpam;
 		
-		public BattlePass(UUID _uuid, int _rank, int _rankProgress, int _claimedRanks) {
+		public BattlePass(UUID _uuid, int _rank, int _rankProgress, int _claimedRanks, boolean _dontSpam) {
 			uuid = _uuid;
 			rank = _rank;
 			rankProgress = _rankProgress;
 			claimedRanks = _claimedRanks;
-			dontSpam = true;
+			dontSpam = _dontSpam;
 		}
 		
 		//Save data to an NBT
@@ -235,7 +236,7 @@ public class BattlePassManager extends WorldSavedData {
 		}
 		//Create a PlayerData from NBT
 		public static BattlePass deserialize(CompoundNBT nbt) {
-			return new BattlePass(nbt.getUUID("uuid"), nbt.getInt("rank"), nbt.getInt("rankProgress"), nbt.getInt("claimedRanks"));
+			return new BattlePass(nbt.getUUID("uuid"), nbt.getInt("rank"), nbt.getInt("rankProgress"), nbt.getInt("claimedRanks"), nbt.getBoolean("dontSpam"));
 		}
 	}
 }

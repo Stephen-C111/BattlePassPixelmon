@@ -1,7 +1,5 @@
 package com.scproductions.battlepasspixelmon;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -9,13 +7,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.pixelmonmod.pixelmon.api.events.ApricornEvent;
+import com.pixelmonmod.pixelmon.api.events.BeatTrainerEvent;
 import com.pixelmonmod.pixelmon.api.events.BeatWildPixelmonEvent;
 import com.pixelmonmod.pixelmon.api.events.EggHatchEvent;
 import com.pixelmonmod.pixelmon.api.events.EvolveEvent;
 import com.pixelmonmod.pixelmon.api.events.FishingEvent;
 import com.pixelmonmod.pixelmon.api.events.PokemonReceivedEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import com.pixelmonmod.pixelmon.api.pokemon.boss.BossTiers;
 import com.pixelmonmod.pixelmon.battles.controller.participants.WildPixelmonParticipant;
+import com.pixelmonmod.pixelmon.entities.npcs.NPCTrainer;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -145,13 +146,54 @@ public class PXListeners {
 	
 	@SubscribeEvent
 	public void onReelIn(FishingEvent.Reel event) {
-		LOGGER.info(event.fishHook);
-		
 		if (event.optEntity.isPresent()) {
 			UUID uuid = event.player.getUUID();
 			int baseValue = BattlePassConfig.pixelmon_fish_base_reward.get();
 			BattlePassManager.grantProgress(uuid, baseValue, false);
 			BattlePassManager.sendPlayerInfoToChat(event.player, baseValue, "Caught something with a rod:");
 		}
+	}
+	
+	@SubscribeEvent
+	public void onTrainerDefeat(BeatTrainerEvent event) {
+		UUID uuid = event.player.getUUID();
+		NPCTrainer trainer = event.trainer;
+		int baseValue = BattlePassConfig.trainer_defeat_base_reward.get();
+		int realValue = baseValue;
+		String extraInfo = "";
+		
+		int level = trainer.getTrainerLevel();
+		
+		realValue *= 1 + (level / 20);
+		
+		if (trainer.getBossTier().isBoss()) {
+			extraInfo += trainer.getBossTier().toString().toLowerCase() + " ";
+			switch (trainer.getBossTier().toString()) {
+				case BossTiers.COMMON: realValue *= 1.2;
+				break;
+				case BossTiers.UNCOMMON: realValue *= 1.4;
+				break;
+				case BossTiers.RARE: realValue *= 1.6;
+				break;
+				case BossTiers.EPIC: realValue *= 1.8;
+				break;
+				case BossTiers.LEGENDARY: realValue *= 2.0;
+				break;
+				case BossTiers.ULTIMATE: realValue *= 2.2;
+				break;
+				case BossTiers.DROWNED: realValue *= 1.4;
+				break;
+				case BossTiers.EQUAL: realValue *= 1.2;
+				break;
+				case BossTiers.HAUNTED: realValue *= 1.4;
+				break;
+				default: break;
+			}
+			
+		}
+			
+		extraInfo += "Level " + level;
+		BattlePassManager.grantProgress(uuid, realValue, false);
+		BattlePassManager.sendPlayerInfoToChat(event.player, realValue, "Beat a " + extraInfo + " trainer:");
 	}
 }
