@@ -1,7 +1,7 @@
 package com.scproductions.battlepasspixelmon;
 
-import java.sql.Time;
-import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -39,13 +39,19 @@ public class PXListeners {
 				int baseValue = BattlePassConfig.pokemon_catch_legendary_base_reward.get();
 				int realValue = baseValue;
 				BattlePassManager.grantProgress(uuid, realValue, false);
-				BattlePassManager.sendPlayerInfo(player, realValue);
+				BattlePassManager.sendPlayerInfo(player, realValue, "Caught a Legendary Pokemon:");
+			}
+			else if (poke.isUltraBeast()) {
+				int baseValue = BattlePassConfig.pokemon_catch_legendary_base_reward.get();
+				int realValue = baseValue / 2;
+				BattlePassManager.grantProgress(uuid, realValue, false);
+				BattlePassManager.sendPlayerInfo(player, realValue, "Caught an Ultra Beast:");
 			}
 			else {
 				int baseValue = BattlePassConfig.pokemon_catch_base_reward.get();
 				int realValue = baseValue * (poke.getPokemonLevel() / 25 + 1);
 				BattlePassManager.grantProgress(uuid, realValue, false);
-				BattlePassManager.sendPlayerInfo(player, realValue);
+				BattlePassManager.sendPlayerInfo(player, realValue, "Caught a Pokemon:");
 			}
 		}
 	}
@@ -60,13 +66,19 @@ public class PXListeners {
 			int baseValue = BattlePassConfig.pokemon_defeat_legendary_base_reward.get();
 			int realValue = baseValue;
 			BattlePassManager.grantProgress(uuid, realValue, false);
-			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated Legendary:");
+			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated a Legendary Pokemon:");
+		}
+		else if (poke.isUltraBeast()) {
+			int baseValue = BattlePassConfig.pokemon_defeat_legendary_base_reward.get();
+			int realValue = baseValue / 2;
+			BattlePassManager.grantProgress(uuid, realValue, false);
+			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated an Ultra Beast:");
 		}
 		else {
 			int baseValue = BattlePassConfig.pokemon_defeat_base_reward.get();
 			int realValue = baseValue * (poke.getPokemonLevel() / 25 + 1);
 			BattlePassManager.grantProgress(uuid, realValue, false);
-			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated Pokemon:");
+			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated a Pokemon:");
 		}
 	}
 	
@@ -79,11 +91,11 @@ public class PXListeners {
 		int chance = random.nextInt(101);
 		if (chance == 100) {
 			BattlePassManager.grantProgress(uuid, baseValue * 2, false);
-			BattlePassManager.sendPlayerInfo(player, baseValue * 2);
+			BattlePassManager.sendPlayerInfo(player, baseValue * 2, "Super Lucky Apricorn Pick:");
 		}
 		else if (chance > 92) {
 			BattlePassManager.grantProgress(uuid, baseValue, false);
-			BattlePassManager.sendPlayerInfo(player, baseValue);
+			BattlePassManager.sendPlayerInfo(player, baseValue, "Lucky Apricorn Pick:");
 		}
 	}
 	
@@ -132,7 +144,14 @@ public class PXListeners {
 	}
 	
 	@SubscribeEvent
-	public void onReelCatch(FishingEvent.Catch event) {
-		LOGGER.info("FishingEvent fired.");
+	public void onReelIn(FishingEvent.Reel event) {
+		LOGGER.info(event.fishHook);
+		
+		if (event.optEntity.isPresent()) {
+			UUID uuid = event.player.getUUID();
+			int baseValue = BattlePassConfig.pixelmon_fish_base_reward.get();
+			BattlePassManager.grantProgress(uuid, baseValue, false);
+			BattlePassManager.sendPlayerInfoToChat(event.player, baseValue, "Caught something with a rod:");
+		}
 	}
 }

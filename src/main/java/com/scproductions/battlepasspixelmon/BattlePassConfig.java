@@ -15,6 +15,8 @@ public class BattlePassConfig {
     public static final ForgeConfigSpec.ConfigValue<Integer> pokemon_evolve_base_reward;
     public static final ForgeConfigSpec.ConfigValue<Integer> apricorn_pick_base_reward;
     public static final ForgeConfigSpec.ConfigValue<Integer> egg_hatch_base_reward;
+    public static final ForgeConfigSpec.ConfigValue<Integer> vanilla_fish_base_reward;
+    public static final ForgeConfigSpec.ConfigValue<Integer> pixelmon_fish_base_reward;
     
     public static final ForgeConfigSpec.ConfigValue<Integer> required_progress_to_rank;
     public static final ForgeConfigSpec.ConfigValue<Integer> max_rank;
@@ -31,6 +33,8 @@ public class BattlePassConfig {
     	pokemon_evolve_base_reward = BUILDER.comment("The base payout for evolving a pokemon.").define("PokemonEvolveBaseReward", 10);
     	apricorn_pick_base_reward = BUILDER.comment("There's a 7% chance to get this reward, and a 1% chance to get double this reward.").define("ApricornPickBaseReward", 1);
     	egg_hatch_base_reward = BUILDER.comment("The base reward is multiplied by the number of perfect (31) ivs on the hatched pokemon + 1. 6IV with base of 10 = 70 points.").define("EggHatchBaseReward", 10);
+    	vanilla_fish_base_reward = BUILDER.comment("The base reward for vanilla fishing. There are no pokemon to defeat meaning this should be higher than pixelmon fishing.").define("VanillaFishBaseReward", 2);
+    	pixelmon_fish_base_reward = BUILDER.comment("The base reward for pixelmon fishing. Defeating pokemon naturally makes pixelmon fishing more lucrative.").define("PixelmonFishBaseReward", 1);
     	
     	required_progress_to_rank = BUILDER.comment("The required amount of progress to rank up.").define("ProgressNeededForRankUp", 1000);
     	max_rank = BUILDER.comment("The maximum rank a player can achieve.").define("MaxRank", 999999);

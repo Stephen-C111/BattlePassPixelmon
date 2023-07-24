@@ -142,17 +142,33 @@ public class BattlePassManager extends WorldSavedData {
 		return bpm.DATA.get(uuid).claimedRanks;
 	}
 	
+	public static boolean getSpamDisallowed(UUID uuid) {
+		BattlePassManager bpm = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
+		if (bpm.DATA.containsKey(uuid) == false) {
+			return false;
+		}
+		return bpm.DATA.get(uuid).dontSpam;
+	}
+	
 	//This will appear on the player's chatbox.
 	public static void sendPlayerInfoToChat(ServerPlayerEntity player, int pointsGained, String reason) {
-		player.sendMessage(new StringTextComponent(
-				reason + " +" + pointsGained + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
-				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/" + BattlePassConfig.required_progress_to_rank.get()), player.getUUID());
+		if (getSpamDisallowed(player.getUUID())) {
+			//send to sleep bar instead
+			sendPlayerInfo(player, pointsGained, reason);
+		}
+		else {
+			//send to chat
+			player.sendMessage(new StringTextComponent(
+					reason + " +" + pointsGained + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
+					": " + BattlePassManager.getRankProgress(player.getUUID()) + "/" + BattlePassConfig.required_progress_to_rank.get()), player.getUUID());
+		}
+		
 	}
 	
 	//This will appear above the player's toolbar for a brief period of time.
-	public static void sendPlayerInfo(ServerPlayerEntity player, int pointsGained) {
+	public static void sendPlayerInfo(ServerPlayerEntity player, int pointsGained, String reason) {
 		player.displayClientMessage(new StringTextComponent(
-				"+" + pointsGained + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
+				reason + " +" + pointsGained + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
 				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/" + BattlePassConfig.required_progress_to_rank.get()), true);
 	}
 	
@@ -183,17 +199,28 @@ public class BattlePassManager extends WorldSavedData {
 		putData(uuid, rank, getRankProgress(uuid), claimed);
 	}
 	
+	public static void toggleChatMessages(ServerPlayerEntity player) {
+		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
+		BattlePassManager bpm = world.getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
+		BattlePass bp = bpm.DATA.get(player.getUUID());
+		bp.dontSpam = !bp.dontSpam;
+		putData(bp, world);
+		player.sendMessage(new StringTextComponent("Don't receive progress messages in chat: " + bp.dontSpam), player.getUUID());
+	}
+	
 	static class BattlePass {
 		UUID uuid;
 		int rank;
 		int rankProgress;
 		int claimedRanks;
+		boolean dontSpam;
 		
 		public BattlePass(UUID _uuid, int _rank, int _rankProgress, int _claimedRanks) {
 			uuid = _uuid;
 			rank = _rank;
 			rankProgress = _rankProgress;
 			claimedRanks = _claimedRanks;
+			dontSpam = true;
 		}
 		
 		//Save data to an NBT
@@ -203,6 +230,7 @@ public class BattlePassManager extends WorldSavedData {
 			nbt.putInt("rank", rank);
 			nbt.putInt("rankProgress", rankProgress);
 			nbt.putInt("claimedRanks", claimedRanks);
+			nbt.putBoolean("dontSpam", dontSpam);
 			return nbt;
 		}
 		//Create a PlayerData from NBT
