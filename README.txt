@@ -19,5 +19,5 @@ Caught pokemon (Legendary bonus included)
 Defeated pokemon (Legendary bonus included)
 Evolved pokemon (Legendary bonus included, for typenull to silvally)
 Hatched pokemon (perfect (31) IV bonus included. Base reward is multiplied by number of perfect IVs)
-Successful Pixelmon rod reel in
+Successful Pixelmon and vanilla rod reel in
 7% chance to gain points for apricorn picking, 1% chance for a double point reward.
