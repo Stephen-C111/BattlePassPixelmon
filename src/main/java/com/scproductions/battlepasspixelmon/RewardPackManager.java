@@ -3,6 +3,7 @@ package com.scproductions.battlepasspixelmon;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -23,6 +24,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLConfig;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -40,9 +43,24 @@ public class RewardPackManager {
 	
 	public void createDefaultPacks() {
 		RewardPack[] rps = {
-				new RewardPack(0, new ItemPair[] { new ItemPair("minecraft:oak_door", 1) }),
-				new RewardPack(0, new ItemPair[] { new ItemPair("pixelmon:acro_bike", 1) }),
-				new RewardPack(0, new ItemPair[] { new ItemPair("pixelmon:ancient_great_ball", 32) })
+				new RewardPack(0, new ItemPair[] { new ItemPair("pixelmon:ancient_poke_ball", 32) }),
+				new RewardPack(1, new ItemPair[] { new ItemPair("pixelmon:green_pc", 1), new ItemPair("pixelmon:green_healer", 1) }),
+				new RewardPack(2, new ItemPair[] { new ItemPair("pixelmon:curry_burger", 8), new ItemPair("pixelmon:potion", 16)  }),
+				new RewardPack(3, new ItemPair[] { new ItemPair("pixelmon:green_poke_bag", 1) }),
+				new RewardPack(4, new ItemPair[] { new ItemPair("minecraft:bookshelf", 5), new ItemPair("minecraft:experience_bottle", 16) }),
+				new RewardPack(5, new ItemPair[] { new ItemPair("minecraft:experience_bottle", 32) }),
+				new RewardPack(6, new ItemPair[] { new ItemPair("pixelmon:curry_apple", 8) }),
+				new RewardPack(7, new ItemPair[] { new ItemPair("pixelmon:hyper_potion", 16) }),
+				new RewardPack(8, new ItemPair[] { new ItemPair("pixelmon:curry_cheese", 8) }),
+				new RewardPack(9, new ItemPair[] { new ItemPair("pixelmon:revive", 8) }),
+				new RewardPack(10, new ItemPair[] { new ItemPair("pixelmon:thunder_stone", 4), new ItemPair("pixelmon:fire_stone", 4), }),
+				new RewardPack(20, new ItemPair[] { new ItemPair("pixelmon:thunder_stone", 6), new ItemPair("pixelmon:fire_stone", 6), }),
+				new RewardPack(50, new ItemPair[] { new ItemPair("pixelmon:master_ball", 1) }),
+				new RewardPack(100, new ItemPair[] { new ItemPair("pixelmon:master_ball", 1) }),
+				new RewardPack(200, new ItemPair[] { new ItemPair("pixelmon:park_ball", 1) }),
+				new RewardPack(300, new ItemPair[] { new ItemPair("pixelmon:origin_ball", 1) }),
+				new RewardPack(400, new ItemPair[] { new ItemPair("pixelmon:master_ball", 2) }),
+				new RewardPack(500, new ItemPair[] { new ItemPair("pixelmon:park_ball", 2) })
 							};
 		for (RewardPack rp : rps) {
 			DATA.put(rp.rank, rp);
@@ -150,13 +168,17 @@ public class RewardPackManager {
 		BattlePassManager.updateClaimedPacks(player, claimedPacks);
 	}
 	
-	public void createNewRewardPack(int rank, ItemPair[] items) {
+	public void createNewRewardPack(int rank, ItemPair[] items) throws IOException {
 		RewardPack rp = new RewardPack(rank, items);
 		DATA.put(rank, rp);
+		Path path = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath());
+		rpm.savePacksJson(path.getFileName().toString() + "\\RewardPackConfig.json");
 	}
 	
-	public void createNewRewardPack(RewardPack rp) {
+	public void createNewRewardPack(RewardPack rp) throws IOException {
 		DATA.put(rp.rank, rp);
+		Path path = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath());
+		rpm.savePacksJson(path.getFileName().toString() + "\\RewardPackConfig.json");
 	}
 	
 	public static class RewardPack{
