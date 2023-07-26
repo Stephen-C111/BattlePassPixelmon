@@ -17,6 +17,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.EntityArgument;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.loading.FMLConfig;
 import net.minecraftforge.fml.loading.FMLPaths;
 
@@ -47,7 +48,7 @@ public class ResetRankCommand {
 	        Logger.getLogger("BattlePassPixelmon").info(path.getFileName().toString() + "\\DELETED_DATA_" + player.getName().getString() + "_" + UUID.randomUUID() + ".txt");
 			File f = new File(path.getFileName().toString() + "\\DELETED_DATA_" + player.getName().getString() + "_" + UUID.randomUUID() + ".txt");
 			FileWriter fw = new FileWriter(f);
-			String s = player.getUUID() + "|" + BattlePassManager.getRank(player.getUUID()) + "|" + BattlePassManager.getRankProgress(player.getUUID()) + "|" + BattlePassManager.getClaimedRanks(player.getUUID());
+			String s = "PLAYER UUID: " + player.getUUID() + "| RANK: " + BattlePassManager.getRank(player.getUUID()) + "| PROGRESS: " + BattlePassManager.getRankProgress(player.getUUID()) + "| CLAIMED RANKS: " + BattlePassManager.getClaimedRanks(player.getUUID());
 			s += "\nClaimed UUIDS:\n";
 			for (UUID uuid : BattlePassManager.getClaimedUUIDS(player.getUUID())) {
 				s += uuid + "\n";
@@ -57,6 +58,15 @@ public class ResetRankCommand {
 			BattlePassManager.updateClaimedPacks(player, new UUID[] {});
 			BattlePassManager.putData(player.getUUID(), 0, 0, 0);
 		}
+		try {
+			source.getPlayerOrException().sendMessage(new StringTextComponent(
+					"Reset passes for: " + players.toString() + ". Backup data can be located in \\DefaultConfigs. "), source.getPlayerOrException().getUUID() );
+		}
+		catch (CommandSyntaxException e){
+			return 1;
+		}
+		
+		
 		return 1;
 	}
 }
