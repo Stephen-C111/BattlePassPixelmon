@@ -44,4 +44,5 @@ You can generate a unique UUID online or create RewardPacks from the given comma
 "pairs" defines a very simple structure called an ItemPair. This consists of an itemID (pixelmon:poke_ball or minecraft:oak_door) for example, and an amount of the item to be given.
 If you've never worked with json files before, be aware that if you mistype one of these lines, or forget to use a comma, parenthesis, etc. your RewardPack will be unreadable.
 Please stick to using the supplied command in-game if you do not know what you're doing.
+You can delete the RewardPackConfig to re-generate the default packs when the server restarts. Be careful not to lose any custom packs you've defined.
 Finally, know that you are safe to delete any default entries without concern, and you must restart the server for any external changes to take effect.
