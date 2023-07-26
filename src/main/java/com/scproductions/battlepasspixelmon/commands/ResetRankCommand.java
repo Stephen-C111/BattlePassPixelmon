@@ -57,14 +57,16 @@ public class ResetRankCommand {
 			fw.close();
 			BattlePassManager.updateClaimedPacks(player, new UUID[] {});
 			BattlePassManager.putData(player.getUUID(), 0, 0, 0);
+			
+			try {
+				source.getPlayerOrException().sendMessage(new StringTextComponent(
+						"Reset passes for: " + player.getName().getString() + ". Backup data can be located in \\DefaultConfigs. "), source.getPlayerOrException().getUUID() );
+			}
+			catch (CommandSyntaxException e){
+				return 1;
+			}
 		}
-		try {
-			source.getPlayerOrException().sendMessage(new StringTextComponent(
-					"Reset passes for: " + players.toString() + ". Backup data can be located in \\DefaultConfigs. "), source.getPlayerOrException().getUUID() );
-		}
-		catch (CommandSyntaxException e){
-			return 1;
-		}
+		
 		
 		
 		return 1;

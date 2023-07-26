@@ -102,9 +102,9 @@ public class Main
 			e.printStackTrace();
 		}
         LOGGER.info("Finished Loading RewardPacks.");
-        LOGGER.info("Checking RewardPack DATA size: " + RewardPackManager.rpm.checkData());
+        //LOGGER.info("Checking RewardPack DATA size: " + RewardPackManager.rpm.checkData());
         RewardPack rp = RewardPackManager.rpm.getRewardPacksForRank(0).get(0);
-        LOGGER.info(rp.rank + "|" + rp.pairs[0].itemID + "|" + rp.uuid.toString());
+        //LOGGER.info(rp.rank + "|" + rp.pairs[0].itemID + "|" + rp.uuid.toString());
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD

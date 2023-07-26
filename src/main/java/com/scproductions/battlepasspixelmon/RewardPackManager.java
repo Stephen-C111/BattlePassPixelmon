@@ -40,7 +40,9 @@ public class RewardPackManager {
 	
 	public void createDefaultPacks() {
 		RewardPack[] rps = {
-				new RewardPack(0, new ItemPair[] { new ItemPair("minecraft:door", 1) })
+				new RewardPack(0, new ItemPair[] { new ItemPair("minecraft:oak_door", 1) }),
+				new RewardPack(0, new ItemPair[] { new ItemPair("pixelmon:acro_bike", 1) }),
+				new RewardPack(0, new ItemPair[] { new ItemPair("pixelmon:ancient_great_ball", 32) })
 							};
 		for (RewardPack rp : rps) {
 			DATA.put(rp.rank, rp);
@@ -54,11 +56,11 @@ public class RewardPackManager {
 		Gson gson = new Gson();
 		LOGGER.info("Attempting to write to " + fileName);
 		for (Entry<Integer, RewardPack> rpE : DATA.entries()) {
-			LOGGER.info("Grabbing RewardPack");
+			//LOGGER.info("Grabbing RewardPack");
 			RewardPack rp = rpE.getValue();
-			LOGGER.info("rp grabbed, converting to Json");
+			//LOGGER.info("rp grabbed, converting to Json");
 			String jsonLine = gson.toJson(rp, RewardPackManager.RewardPack.class) + "\n";
-			LOGGER.info("Appending to " + fileName);
+			//LOGGER.info("Appending to " + fileName);
 			fw.append(jsonLine);
 		}
 		LOGGER.info("Closing FileWriter.");
@@ -68,7 +70,7 @@ public class RewardPackManager {
 	public void loadPacksJson(String fileName) throws IOException {
 		File f = new File(fileName);
 		if (f.exists()) {
-			LOGGER.info("File Found");
+			LOGGER.info("RewardPackConfig.json File Found, loading data in...");
 			Scanner fileInput = new Scanner(f);
 			Gson gson = new Gson();
 			while (fileInput.hasNextLine()) {
@@ -79,7 +81,7 @@ public class RewardPackManager {
 			fileInput.close();
 		}
 		else {
-			LOGGER.info("File NOT Found");
+			LOGGER.info("RewardPackConfig.json File NOT Found, creating a default version.");
 			createDefaultPacks();
 			savePacksJson(fileName);
 		}
@@ -117,25 +119,28 @@ public class RewardPackManager {
 				}
 				else {
 					packs.add(rp);
-					LOGGER.info(rp.pairs[0].itemID + "|" + rp.rank);
+					//LOGGER.info(rp.pairs[0].itemID + "|" + rp.rank);
 				}
 			}
 		}
 		
 		//Grant player rewards.
 		for (RewardPack rp : packs) {
-			LOGGER.info("Evaluating pack");
+			//LOGGER.info("Evaluating pack");
 			for (ItemPair pair : rp.pairs) {
-				LOGGER.info("Grabbing Items");
+				//LOGGER.info("Grabbing Items");
 				if (ForgeRegistries.ITEMS.containsKey(new ResourceLocation(pair.itemID))) {
 					Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(pair.itemID));
 					ItemStack stack = new ItemStack(item, pair.amount);
 					ItemHandlerHelper.giveItemToPlayer(player, stack);
 					player.sendMessage(new StringTextComponent(
-							"Claimed " + stack.getDisplayName() + ", for reaching rank " + rp.rank), player.getUUID());
+							"Claimed " + stack.getHoverName().getString() + ", for reaching rank " + rp.rank), player.getUUID());
 				}
 				else {
 					LOGGER.info("Key not found: " + pair.itemID);
+					player.sendMessage(new StringTextComponent(
+							"Could not claim item with id of: " + pair.itemID + 
+							". Please reach out to a server administrator so they can resolve this issue inside defaultconfigs\\RewardPackConfig.json"), player.getUUID());
 				}
 				
 			}
@@ -154,14 +159,14 @@ public class RewardPackManager {
 		DATA.put(rp.rank, rp);
 	}
 	
-	static class RewardPack{
+	public static class RewardPack{
 		public int rank;
 		public UUID uuid;
 		ItemPair[] pairs;
-		static class ItemPair{
+		public static class ItemPair{
 			String itemID;
 			int amount;
-			ItemPair(String _itemID, int _amount){
+			public ItemPair(String _itemID, int _amount){
 				itemID = _itemID;
 				amount = _amount;
 			}

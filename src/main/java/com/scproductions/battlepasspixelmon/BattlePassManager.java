@@ -241,10 +241,12 @@ public class BattlePassManager extends WorldSavedData {
 		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
 		BattlePassManager bpm = world.getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
 		BattlePass bp = bpm.DATA.get(player.getUUID());
+		Logger.getLogger("BattlePassPixelmon").info("Filling new array of size: " + claimedPacks.size());
 		UUID[] array = new UUID[claimedPacks.size()];
 		int y = 0;
 		for (UUID uuid : claimedPacks) {
-			array[y] = uuid;
+			array[y++] = uuid;
+			Logger.getLogger("BattlePassPixelmon").info(uuid.toString());
 		}
 		bp.claimedPacks = array;
 		putData(bp, world);
