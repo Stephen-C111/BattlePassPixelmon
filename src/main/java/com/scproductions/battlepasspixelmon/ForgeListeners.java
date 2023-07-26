@@ -1,13 +1,17 @@
 package com.scproductions.battlepasspixelmon;
 
 import com.scproductions.battlepasspixelmon.commands.CheckRankCommand;
+import com.scproductions.battlepasspixelmon.commands.ClaimRewardPacksCommand;
 import com.scproductions.battlepasspixelmon.commands.ClaimRewardsCommand;
 import com.scproductions.battlepasspixelmon.commands.GiveProgressCommand;
 import com.scproductions.battlepasspixelmon.commands.GiveSelfProgressCommand;
+import com.scproductions.battlepasspixelmon.commands.ResetRankCommand;
 import com.scproductions.battlepasspixelmon.commands.ToggleBattlePassMessagesCommand;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -24,8 +28,16 @@ public class ForgeListeners {
 		new GiveProgressCommand(event.getDispatcher());
 		new GiveSelfProgressCommand(event.getDispatcher());
 		new ToggleBattlePassMessagesCommand(event.getDispatcher());
+		new ClaimRewardPacksCommand(event.getDispatcher());
+		new ResetRankCommand(event.getDispatcher());
 		
 		ConfigCommand.register(event.getDispatcher());
+	}
+	
+	@SubscribeEvent
+	public static void onAddReloadListeners(AddReloadListenerEvent event)
+	{
+		
 	}
 	
 	@SubscribeEvent
@@ -35,4 +47,15 @@ public class ForgeListeners {
 		BattlePassManager.grantProgress(player.getUUID(), baseValue, false);
 		BattlePassManager.sendPlayerInfo(player, baseValue, "Caught something with a normal rod:");
 	}
+	
+	@SubscribeEvent
+	public static void onPlayerJoin(EntityJoinWorldEvent event) {
+		//Check to see if joined player has a battlepass or not.
+		if (event.getEntity() instanceof ServerPlayerEntity) {
+			if (BattlePassManager.getRank(event.getEntity().getUUID()) == -999) {
+				BattlePassManager.putData(event.getEntity().getUUID(), 0, 0, 0);
+			}
+		}
+	}
+	
 }

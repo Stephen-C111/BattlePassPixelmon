@@ -1,0 +1,32 @@
+{
+  "packs": [
+    {
+      "uuid": "0e5c154b-862d-4546-927d-e39d17e1e70c",
+      "rank": "1",
+      "stacks": [
+        {
+          "item": "minecraft:door",
+          "amount": 2
+        },
+        {
+          "item": "minecraft:dandelion",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "uuid": "0e5c154b-862d-4546-927d-e39d17e1e70b",
+      "rank": "2",
+      "stacks": [
+        {
+          "item": "minecraft:poppy",
+          "amount": 2
+        },
+        {
+          "item": "minecraft:diamond",
+          "amount": 2
+        }
+      ]
+    }
+  ]
+}

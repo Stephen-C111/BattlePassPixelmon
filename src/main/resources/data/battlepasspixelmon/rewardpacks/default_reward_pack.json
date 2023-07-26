@@ -1,0 +1,19 @@
+{
+"uuid": "0e5c154b-862d-4546-927d-e39d17e1e70c",
+"rank": "1",
+"stacks": [
+	{
+       "type": "minecraft:item",
+       "items": [
+            {
+              "item": "minecraft:dandelion",
+              "amount": 2
+            },
+            {
+              "item": "minecraft:door",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+}
