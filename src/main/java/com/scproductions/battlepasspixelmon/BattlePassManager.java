@@ -284,7 +284,7 @@ public class BattlePassManager extends WorldSavedData {
 			
 			return nbt;
 		}
-		//Create a PlayerData from NBT
+		//Create a BattlePass from NBT
 		public static BattlePass deserialize(CompoundNBT nbt) {
 			List<UUID> packuuids = new ArrayList<UUID>();
 			int i = 0;
@@ -294,7 +294,7 @@ public class BattlePassManager extends WorldSavedData {
 			UUID[] array = new UUID[packuuids.size()];
 			int y = 0;
 			for (UUID uuid : packuuids) {
-				array[y] = uuid;
+				array[y++] = uuid;
 			}
 			return new BattlePass(nbt.getUUID("uuid"), nbt.getInt("rank"), nbt.getInt("rankProgress"), nbt.getInt("claimedRanks"), nbt.getBoolean("dontSpam"), array);
 		}
