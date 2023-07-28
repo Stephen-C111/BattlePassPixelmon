@@ -16,11 +16,14 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.scproductions.battlepasspixelmon.RewardPackManager.RewardPack.ItemPair;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.common.Mod;
@@ -124,7 +127,7 @@ public class RewardPackManager {
 		return packs;
 	}
 	
-	public void claimRewardPacks(ServerPlayerEntity player) {
+	public void claimRewardPacks(ServerPlayerEntity player) throws CommandSyntaxException {
 		List<RewardPack> packs = new ArrayList<RewardPack>();
 		List<UUID> claimedPacks = new ArrayList<>();
 		for (UUID uuid : BattlePassManager.getClaimedUUIDS(player.getUUID())) {
@@ -153,6 +156,10 @@ public class RewardPackManager {
 				if (ForgeRegistries.ITEMS.containsKey(new ResourceLocation(pair.itemID))) {
 					Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(pair.itemID));
 					ItemStack stack = new ItemStack(item, pair.amount);
+					if (pair.nbt != null) {
+						CompoundNBT nbt = JsonToNBT.parseTag(pair.nbt);
+						stack.setTag(nbt);
+					}
 					ItemHandlerHelper.giveItemToPlayer(player, stack);
 					player.sendMessage(new StringTextComponent(
 							"Claimed " + stack.getHoverName().getString() + ", for reaching rank " + rp.rank), player.getUUID());
@@ -191,9 +198,15 @@ public class RewardPackManager {
 		public static class ItemPair{
 			String itemID;
 			int amount;
+			String nbt;
 			public ItemPair(String _itemID, int _amount){
 				itemID = _itemID;
 				amount = _amount;
+			}
+			public ItemPair(String _itemID, int _amount, CompoundNBT _nbt){
+				itemID = _itemID;
+				amount = _amount;
+				nbt = _nbt.toString();
 			}
 		}
 		

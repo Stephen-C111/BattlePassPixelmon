@@ -12,6 +12,8 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.ItemArgument;
 import net.minecraft.command.arguments.ItemInput;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.StringTextComponent;
 
 public class NewRewardPackCommand {
@@ -34,9 +36,11 @@ public class NewRewardPackCommand {
 							))));
 	}
 	
-	private int createRewardPack(CommandSource source, int rank, ItemInput item, int amount) throws IOException {
+	private int createRewardPack(CommandSource source, int rank, ItemInput item, int amount) throws IOException, CommandSyntaxException {
 		String itemID = item.getItem().getRegistryName().toString();
-		RewardPackManager.rpm.createNewRewardPack(rank, new ItemPair[] { new ItemPair(itemID, amount) });
+		ItemStack stack = item.createItemStack(amount, false);
+		CompoundNBT nbtData = stack.getTag();
+		RewardPackManager.rpm.createNewRewardPack(rank, new ItemPair[] { new ItemPair(itemID, amount, nbtData) });
 		try {
 			source.getPlayerOrException().sendMessage(new StringTextComponent(
 					"Created a new rewardpack accessible by players with rank: " + rank + ", containing: " + itemID + " : " + amount), source.getPlayerOrException().getUUID() );
