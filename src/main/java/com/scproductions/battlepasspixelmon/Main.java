@@ -91,10 +91,9 @@ public class Main
     public void onServerStarting(FMLServerStartingEvent event) throws IOException {
         // do something when the server starts
         LOGGER.info("BattlePassPixelmon is installed.");
-        //TODO: Figure out why getData causes an exception.
         LOGGER.info("Loading RewardPacks.");
         Path path = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath());
-        LOGGER.info(path.getFileName().toString() + "\\RewardPackConfig.json");
+        //LOGGER.info(path.getFileName().toString() + "\\RewardPackConfig.json");
         try {
 			RewardPackManager.rpm.loadPacksJson(path.getFileName().toString() + "\\RewardPackConfig.json");
 		} catch (IOException e) {
@@ -102,9 +101,6 @@ public class Main
 			e.printStackTrace();
 		}
         LOGGER.info("Finished Loading RewardPacks.");
-        //LOGGER.info("Checking RewardPack DATA size: " + RewardPackManager.rpm.checkData());
-        RewardPack rp = RewardPackManager.rpm.getRewardPacksForRank(0).get(0);
-        //LOGGER.info(rp.rank + "|" + rp.pairs[0].itemID + "|" + rp.uuid.toString());
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD

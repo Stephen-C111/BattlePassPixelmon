@@ -97,6 +97,7 @@ public class RewardPackManager {
 			LOGGER.info("RewardPackConfig.json File Found, loading data in...");
 			Scanner fileInput = new Scanner(f);
 			Gson gson = new Gson();
+			DATA.clear();
 			while (fileInput.hasNextLine()) {
 				String jsonLine = fileInput.nextLine();
 				RewardPack rp = gson.fromJson(jsonLine, RewardPackManager.RewardPack.class);
