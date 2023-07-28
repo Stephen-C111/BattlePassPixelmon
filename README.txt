@@ -10,6 +10,7 @@ Commands:
 /giveselfprogress [amount] : Grant yourself rank progress.
 /resetrank [player] [--confirmationargument1] [--confirmationargument2] : Delete a player's progress. The deleted data will be saved in defaultconfigs in case this was an accident.
 /newrewardpack [rank] [item] [amount] : Create a new RewardPack at runtime.
+/reloadrewardpacks : Reload the RewardPacksConfig.json file without restarting the server. Useful if you manually edited the config file during runtime.
 
   Unprivileged:
 /checkrank : Shows the player their rank and progress towards the next rank.
@@ -42,6 +43,7 @@ This line will give any player who has reached rank 4 the following items: 5 boo
 "uuid" defines the UUID that is checked to ensure no duplicate rewards are claimed. DO NOT modify this unless you intend for players to be eligible to claim this pack again.
 You can generate a unique UUID online or create RewardPacks from the given command to get a random one.
 "pairs" defines a very simple structure called an ItemPair. This consists of an itemID (pixelmon:poke_ball or minecraft:oak_door) for example, and an amount of the item to be given.
+As of 0.4.1, nbt data can and will be saved if any is defined.
 If you've never worked with json files before, be aware that if you mistype one of these lines, or forget to use a comma, parenthesis, etc. your RewardPack will be unreadable.
 Please stick to using the supplied command in-game if you do not know what you're doing.
 You can delete the RewardPackConfig to re-generate the default packs when the server restarts. Be careful not to lose any custom packs you've defined.
