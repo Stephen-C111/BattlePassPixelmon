@@ -24,7 +24,7 @@ public class ReloadRewardPacksCommand {
 		
 		Path path = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath());
         try {
-			RewardPackManager.rpm.loadPacksJson(path.getFileName().toString() + "\\RewardPackConfig.json");
+			RewardPackManager.rpm.loadPacksJson();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -74,7 +74,8 @@ public class RewardPackManager {
 		LOGGER.info(checkData());
 	}
 	
-	public void savePacksJson(String fileName) throws IOException {
+	public void savePacksJson() throws IOException {
+		String fileName = Main.REWARDPACKCONFIGLOCATION;
 		File f = new File(fileName);
 		FileWriter fw = new FileWriter(f);
 		Gson gson = new Gson();
@@ -91,7 +92,8 @@ public class RewardPackManager {
 		fw.close();
 	}
 	
-	public void loadPacksJson(String fileName) throws IOException {
+	public void loadPacksJson() throws IOException {
+		String fileName = Main.REWARDPACKCONFIGLOCATION;
 		File f = new File(fileName);
 		if (f.exists()) {
 			LOGGER.info("RewardPackConfig.json File Found, loading data in...");
@@ -108,7 +110,7 @@ public class RewardPackManager {
 		else {
 			LOGGER.info("RewardPackConfig.json File NOT Found, creating a default version.");
 			createDefaultPacks();
-			savePacksJson(fileName);
+			savePacksJson();
 		}
 	}
 	
@@ -157,10 +159,8 @@ public class RewardPackManager {
 				if (ForgeRegistries.ITEMS.containsKey(new ResourceLocation(pair.itemID))) {
 					Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(pair.itemID));
 					ItemStack stack = new ItemStack(item, pair.amount);
-					if (pair.nbt != null) {
 						CompoundNBT nbt = JsonToNBT.parseTag(pair.nbt);
 						stack.setTag(nbt);
-					}
 					ItemHandlerHelper.giveItemToPlayer(player, stack);
 					player.sendMessage(new StringTextComponent(
 							"Claimed " + stack.getHoverName().getString() + ", for reaching rank " + rp.rank), player.getUUID());
@@ -183,13 +183,13 @@ public class RewardPackManager {
 		RewardPack rp = new RewardPack(rank, items);
 		DATA.put(rank, rp);
 		Path path = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath());
-		rpm.savePacksJson(path.getFileName().toString() + "\\RewardPackConfig.json");
+		rpm.savePacksJson();
 	}
 	
 	public void createNewRewardPack(RewardPack rp) throws IOException {
 		DATA.put(rp.rank, rp);
 		Path path = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath());
-		rpm.savePacksJson(path.getFileName().toString() + "\\RewardPackConfig.json");
+		rpm.savePacksJson();
 	}
 	
 	public static class RewardPack{
@@ -203,6 +203,7 @@ public class RewardPackManager {
 			public ItemPair(String _itemID, int _amount){
 				itemID = _itemID;
 				amount = _amount;
+				nbt = "{}";
 			}
 			public ItemPair(String _itemID, int _amount, CompoundNBT _nbt){
 				itemID = _itemID;

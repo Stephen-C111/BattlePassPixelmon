@@ -39,8 +39,14 @@ public class NewRewardPackCommand {
 	private int createRewardPack(CommandSource source, int rank, ItemInput item, int amount) throws IOException, CommandSyntaxException {
 		String itemID = item.getItem().getRegistryName().toString();
 		ItemStack stack = item.createItemStack(amount, false);
-		CompoundNBT nbtData = stack.getTag();
-		RewardPackManager.rpm.createNewRewardPack(rank, new ItemPair[] { new ItemPair(itemID, amount, nbtData) });
+		if (stack.hasTag()) {
+			CompoundNBT nbtData = stack.getTag();
+			RewardPackManager.rpm.createNewRewardPack(rank, new ItemPair[] { new ItemPair(itemID, amount, nbtData) });
+		}
+		else {
+			RewardPackManager.rpm.createNewRewardPack(rank, new ItemPair[] { new ItemPair(itemID, amount) });
+		}
+		
 		try {
 			source.getPlayerOrException().sendMessage(new StringTextComponent(
 					"Created a new rewardpack accessible by players with rank: " + rank + ", containing: " + itemID + " : " + amount), source.getPlayerOrException().getUUID() );

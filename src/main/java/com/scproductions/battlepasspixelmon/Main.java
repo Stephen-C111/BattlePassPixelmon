@@ -38,6 +38,7 @@ public class Main
     // Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger("BattlePassPixelmon");
     public static final String MOD_ID = "battlepasspixelmon";
+    public static final String REWARDPACKCONFIGLOCATION = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath()).getFileName().toString() + "\\RewardPackConfig-0.4.1.json";
     
 
     public Main() {
@@ -92,10 +93,9 @@ public class Main
         // do something when the server starts
         LOGGER.info("BattlePassPixelmon is installed.");
         LOGGER.info("Loading RewardPacks.");
-        Path path = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath());
-        //LOGGER.info(path.getFileName().toString() + "\\RewardPackConfig.json");
+        
         try {
-			RewardPackManager.rpm.loadPacksJson(path.getFileName().toString() + "\\RewardPackConfig.json");
+			RewardPackManager.rpm.loadPacksJson();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
