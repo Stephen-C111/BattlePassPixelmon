@@ -37,12 +37,13 @@ Server operators can run the /newrewardpack command at runtime to insert a new l
 Users who can access the server files can modify this file directly. Ensure you stick to the conventions in the file.
 Importantly, you MUST separate any rewardpacks into new lines denoted by a number on your IDE of choice, usually. For an example line see:
 
-{"rank":4,"uuid":"0ac0b6e7-c466-46d2-b02e-359aa5d36579","pairs":[{"itemID":"minecraft:bookshelf","amount":5},{"itemID":"minecraft:experience_bottle","amount":16}]}
+{"rank":4,"uuid":"0ac0b6e7-c466-46d2-b02e-359aa5d36579","pairs":[{"itemID":"minecraft:bookshelf","amount":5},{"itemID":"minecraft:experience_bottle","amount":16,"nbt":"{}"}]}
 This line will give any player who has reached rank 4 the following items: 5 bookshelves, and 16 experience bottles.
 "rank" defines the rank.
 "uuid" defines the UUID that is checked to ensure no duplicate rewards are claimed. DO NOT modify this unless you intend for players to be eligible to claim this pack again.
 You can generate a unique UUID online or create RewardPacks from the given command to get a random one.
 "pairs" defines a very simple structure called an ItemPair. This consists of an itemID (pixelmon:poke_ball or minecraft:oak_door) for example, and an amount of the item to be given.
+"nbt" contains nbt data if specified upon rewardpack creation.
 As of 0.4.1, nbt data can and will be saved if any is defined.
 If you've never worked with json files before, be aware that if you mistype one of these lines, or forget to use a comma, parenthesis, etc. your RewardPack will be unreadable.
 Please stick to using the supplied command in-game if you do not know what you're doing.
