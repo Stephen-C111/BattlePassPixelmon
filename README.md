@@ -4,6 +4,8 @@ It responds to events such as catching and fighting pokemon, as well as other va
 Each player has a copy of a BattlePass that tracks their rank, progress to the next rank, and how many rewards they are eligible to claim.
 Players receive rewards for specific ranks via the RewardPack System explained below. For now, an Exp Candy XL is rewarded for every rank up as a generic reward.
 
+![javaw_YRIcSBm5Dx](https://github.com/Stephen-C111/BattlePassPixelmon/assets/30613192/06e74a4b-ebf1-4ece-b9a7-5cc31206b241)
+
 Commands:
   OP required:
 /giveprogress [player] [amount] : Grant a player rank progress.
@@ -50,3 +52,4 @@ If you've never worked with json files before, be aware that if you mistype one 
 Please stick to using the supplied command in-game if you do not know what you're doing.
 You can delete the RewardPackConfig to re-generate the default packs when the server restarts. Be careful not to lose any custom packs you've defined.
 Finally, know that you are safe to delete any default entries without concern, and you must restart the server for any external changes to take effect.
+
