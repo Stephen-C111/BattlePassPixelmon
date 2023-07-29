@@ -16,7 +16,8 @@ Commands:
 /checkrank : Shows the player their rank and progress towards the next rank.
 /claimranks all : Grants the player rewards for each unclaimed generic rank reward.
 /claimrewardpacks : Checks to see if there are any new RewardPacks the player has not claimed yet, and supplies the player with the rewards if so.
-/togglebattlepassmessages : Disallows sending messages to the chat, if the player is annoyed by the messages.
+/togglebattlepassmessages : Toggle allowing sending messages to the chat, if the player is annoyed by the messages.
+/togglebattlepassbossbar : Toggle whether the boss bar should display BattlePass information.
 
 Tracked activities:
 Caught pokemon (Legendary bonus included)
