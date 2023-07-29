@@ -67,19 +67,23 @@ public class BattlePassManager extends WorldSavedData {
 		if (bpm.DATA.containsKey(object.uuid)) {
 			Logger.getLogger("BattlePassPixelmon").info("UUID entry found, updating entry...");
 			bpm.DATA.replace(object.uuid, object);
+			BossBarHandler.bpm.updateBossBar(object.uuid);
 		}
 		else {
 			Logger.getLogger("BattlePassPixelmon").info("UUID not found, creating entry...");
+			object.allowBossBar = BattlePassConfig.use_boss_bar_by_default.get();
 			bpm.DATA.put(object.uuid, object);
 		}
 		bpm.setDirty();
+		
 	}
 	
 	public static void putData(UUID uuid, int rank, int rankProgress, int claimedRanks) {
 		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
 		boolean dontSpam = BattlePassManager.getSpamDisallowed(uuid);
+		boolean bossBar = BattlePassManager.getAllowBossBar(uuid);
 		UUID[] claimedPacks = BattlePassManager.getClaimedUUIDS(uuid);
-		BattlePassManager.putData(new BattlePass(uuid, rank, rankProgress, claimedRanks, dontSpam, claimedPacks), world);
+		BattlePassManager.putData(new BattlePass(uuid, rank, rankProgress, claimedRanks, dontSpam, bossBar, claimedPacks), world);
 	}
 	
 	public static BattlePassManager getDataHandler(ServerWorld world) {
@@ -118,6 +122,7 @@ public class BattlePassManager extends WorldSavedData {
 				bp.rankProgress += BattlePassConfig.required_progress_to_rank.get();
 			}
 			putData(bp, ServerLifecycleHooks.getCurrentServer().overworld());
+			
 		}
 	}
 	//The get commands below will issue -999 if the uuid specified has no entry, to avoid crashing the server.
@@ -151,6 +156,13 @@ public class BattlePassManager extends WorldSavedData {
 			return false;
 		}
 		return bpm.DATA.get(uuid).dontSpam;
+	}
+	public static boolean getAllowBossBar(UUID uuid) {
+		BattlePassManager bpm = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
+		if (bpm.DATA.containsKey(uuid) == false) {
+			return false;
+		}
+		return bpm.DATA.get(uuid).allowBossBar;
 	}
 	
 	public static UUID[] getClaimedUUIDS(UUID uuid) {
@@ -189,12 +201,14 @@ public class BattlePassManager extends WorldSavedData {
 		player.displayClientMessage(new StringTextComponent(
 				reason + plus + " | Rank " + BattlePassManager.getRank(player.getUUID()) + 
 				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/" + BattlePassConfig.required_progress_to_rank.get()), true);
+		
 	}
 	
 	public static void sendPlayerInfo(ServerPlayerEntity player) {
 		player.displayClientMessage(new StringTextComponent(
 				"Rank " + BattlePassManager.getRank(player.getUUID()) + 
 				": " + BattlePassManager.getRankProgress(player.getUUID()) + "/" + BattlePassConfig.required_progress_to_rank.get()), true);
+		
 	}
 	
 	public static void claimRewards(ServerPlayerEntity player) {
@@ -218,6 +232,7 @@ public class BattlePassManager extends WorldSavedData {
 		player.sendMessage(new StringTextComponent(
 				"Claimed " + amount + " ranks."), player.getUUID());
 		putData(uuid, rank, getRankProgress(uuid), claimed);
+		BossBarHandler.bpm.updateBossBar(uuid);
 	}
 	
 	public static void toggleChatMessages(ServerPlayerEntity player) {
@@ -227,6 +242,15 @@ public class BattlePassManager extends WorldSavedData {
 		bp.dontSpam = !bp.dontSpam;
 		putData(bp, world);
 		player.sendMessage(new StringTextComponent("Don't receive progress messages in chat: " + bp.dontSpam), player.getUUID());
+	}
+	
+	public static void toggleBossBar(ServerPlayerEntity player) {
+		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
+		BattlePassManager bpm = world.getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
+		BattlePass bp = bpm.DATA.get(player.getUUID());
+		bp.allowBossBar = !bp.allowBossBar;
+		putData(bp, world);
+		player.sendMessage(new StringTextComponent("Boss Bar display for Battle Pass: " + bp.allowBossBar), player.getUUID());
 	}
 	
 	public static void updateClaimedPacks(ServerPlayerEntity player, UUID[] claimedPacks) {
@@ -258,14 +282,16 @@ public class BattlePassManager extends WorldSavedData {
 		int rankProgress;
 		int claimedRanks;
 		boolean dontSpam;
+		boolean allowBossBar;
 		UUID[] claimedPacks;
 		
-		public BattlePass(UUID _uuid, int _rank, int _rankProgress, int _claimedRanks, boolean _dontSpam, UUID[] _claimedPacks) {
+		public BattlePass(UUID _uuid, int _rank, int _rankProgress, int _claimedRanks, boolean _dontSpam, boolean _allowBossBar, UUID[] _claimedPacks) {
 			uuid = _uuid;
 			rank = _rank;
 			rankProgress = _rankProgress;
 			claimedRanks = _claimedRanks;
 			dontSpam = _dontSpam;
+			allowBossBar = _allowBossBar;
 			claimedPacks = _claimedPacks;
 		}
 		
@@ -277,6 +303,7 @@ public class BattlePassManager extends WorldSavedData {
 			nbt.putInt("rankProgress", rankProgress);
 			nbt.putInt("claimedRanks", claimedRanks);
 			nbt.putBoolean("dontSpam", dontSpam);
+			nbt.putBoolean("allowBossBar", allowBossBar);
 			int i = 0;
 			for (UUID packuuid : claimedPacks) {
 				nbt.putUUID("packuuid" + i++, packuuid);
@@ -296,7 +323,7 @@ public class BattlePassManager extends WorldSavedData {
 			for (UUID uuid : packuuids) {
 				array[y++] = uuid;
 			}
-			return new BattlePass(nbt.getUUID("uuid"), nbt.getInt("rank"), nbt.getInt("rankProgress"), nbt.getInt("claimedRanks"), nbt.getBoolean("dontSpam"), array);
+			return new BattlePass(nbt.getUUID("uuid"), nbt.getInt("rank"), nbt.getInt("rankProgress"), nbt.getInt("claimedRanks"), nbt.getBoolean("dontSpam"), nbt.getBoolean("allowBossBar"), array);
 		}
 	}
 }

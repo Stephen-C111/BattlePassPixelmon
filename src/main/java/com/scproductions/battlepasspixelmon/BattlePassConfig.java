@@ -25,6 +25,9 @@ public class BattlePassConfig {
     
     public static final ForgeConfigSpec.ConfigValue<Boolean> use_hatch_dupe_fix;
     
+    public static final ForgeConfigSpec.ConfigValue<Boolean> use_boss_bar_by_default;
+    public static final ForgeConfigSpec.ConfigValue<String> boss_bar_default_title;
+    
     static {
     	BUILDER.push("Config for BattlePassPixelmon");
     	
@@ -44,6 +47,10 @@ public class BattlePassConfig {
     	
     	use_hatch_dupe_fix = BUILDER.comment("Use the boolean switch method to prevent double firing of the hatch event. Change to false if hatching grants no progress.")
     			.define("UseHatchDupeFix", true);
+    	
+    	use_boss_bar_by_default = BUILDER.comment("Use the boss bar to display player rank information by default. Set to false to disable this behavior.")
+    			.define("UseBossBarByDefault", true);
+    	boss_bar_default_title = BUILDER.comment("Change the phrase on the boss bar, default is \'Battle Pass | \'").define("BossBarDefaultTitle", "Battle Pass | ");
     	
     	BUILDER.pop();
     	SPEC = BUILDER.build();

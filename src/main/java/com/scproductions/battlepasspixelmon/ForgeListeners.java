@@ -8,6 +8,7 @@ import com.scproductions.battlepasspixelmon.commands.GiveSelfProgressCommand;
 import com.scproductions.battlepasspixelmon.commands.NewRewardPackCommand;
 import com.scproductions.battlepasspixelmon.commands.ReloadRewardPacksCommand;
 import com.scproductions.battlepasspixelmon.commands.ResetRankCommand;
+import com.scproductions.battlepasspixelmon.commands.ToggleBattlePassBossBarCommand;
 import com.scproductions.battlepasspixelmon.commands.ToggleBattlePassMessagesCommand;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -30,6 +31,7 @@ public class ForgeListeners {
 		new GiveProgressCommand(event.getDispatcher());
 		new GiveSelfProgressCommand(event.getDispatcher());
 		new ToggleBattlePassMessagesCommand(event.getDispatcher());
+		new ToggleBattlePassBossBarCommand(event.getDispatcher());
 		new ClaimRewardPacksCommand(event.getDispatcher());
 		new ResetRankCommand(event.getDispatcher());
 		new NewRewardPackCommand(event.getDispatcher());
