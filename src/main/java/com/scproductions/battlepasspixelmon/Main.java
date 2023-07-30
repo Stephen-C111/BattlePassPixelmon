@@ -39,6 +39,7 @@ public class Main
     private static final Logger LOGGER = LogManager.getLogger("BattlePassPixelmon");
     public static final String MOD_ID = "battlepasspixelmon";
     public static final String REWARDPACKCONFIGLOCATION = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath()).getFileName().toString() + "\\RewardPackConfig-0.4.1.json";
+    public static final String RANKUPREWARDCONFIGLOCATION = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath()).getFileName().toString() + "\\RankupRewardConfig.json";
     
 
     public Main() {
@@ -96,6 +97,7 @@ public class Main
         
         try {
 			RewardPackManager.rpm.loadPacksJson();
+			RankUpRewardManager.rrm.loadRewardsJson();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

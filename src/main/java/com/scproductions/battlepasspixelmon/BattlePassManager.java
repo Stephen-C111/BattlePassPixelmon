@@ -5,19 +5,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import com.pixelmonmod.pixelmon.api.registries.PixelmonItems;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraftforge.items.ItemHandlerHelper;
 
 public class BattlePassManager extends WorldSavedData {
 	
@@ -211,26 +210,40 @@ public class BattlePassManager extends WorldSavedData {
 		
 	}
 	
-	public static void claimRewards(ServerPlayerEntity player) {
-		int MAX_CLAIMS_ALLOWED = 512; //prevent flooding the world with thousands of items.
+	public static void claimRewards(ServerPlayerEntity player) throws CommandSyntaxException {
+		int MAX_CLAIMS_ALLOWED = 16; //prevent flooding the world with thousands of items.
 		UUID uuid = player.getUUID();
 		int claimed = getClaimedRanks(uuid);
 		int rank = getRank(uuid);
 		int amount = rank - claimed;
 		
-		
+		if (amount == 0) {
+			player.sendMessage(new StringTextComponent("You don't have any ranks to claim yet! You can also try to claim Reward Packs with /claimrewardpacks."), player.getUUID());
+			return;
+		}
 		
 		if (amount > MAX_CLAIMS_ALLOWED) {
 			amount = MAX_CLAIMS_ALLOWED;
 		}
 		
+		Map<String, Integer> map = new HashMap<String, Integer>();
 		for (int i = 0; i < amount; i++) {
 			claimed++;
-			ItemStack stack = new ItemStack(PixelmonItems.xl_exp_candy);
-			ItemHandlerHelper.giveItemToPlayer(player, stack);
+			String s = RankUpRewardManager.rollRandomReward(player);
+			if (map.containsKey(s)) {
+				int x = map.get(s);
+				map.replace(s, x + 1);
 			}
-		player.sendMessage(new StringTextComponent(
-				"Claimed " + amount + " ranks."), player.getUUID());
+			else {
+				map.put(s, 1);
+			}
+			}
+		String message = "You claimed " + amount + " ranks and got: ";
+		for (Entry<String, Integer> s : map.entrySet()) {
+			message += s.getValue() + " " + s.getKey() + ", ";
+		}
+		message += "have fun!";
+		player.sendMessage(new StringTextComponent(message), player.getUUID());
 		putData(uuid, rank, getRankProgress(uuid), claimed);
 		BossBarHandler.bpm.updateBossBar(uuid);
 	}

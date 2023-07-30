@@ -44,7 +44,7 @@ public class RewardPackManager {
 	
 	private final Multimap<Integer, RewardPack> DATA = LinkedHashMultimap.create();
 	
-	public void createDefaultPacks() {
+	public void createDefaultPacks() throws IOException {
 		RewardPack[] rps = {
 				new RewardPack(0, new ItemPair[] { new ItemPair("pixelmon:ancient_poke_ball", 32) }),
 				new RewardPack(1, new ItemPair[] { new ItemPair("pixelmon:green_pc", 1), new ItemPair("pixelmon:green_healer", 1) }),
@@ -71,7 +71,7 @@ public class RewardPackManager {
 		for (RewardPack rp : rps) {
 			DATA.put(rp.rank, rp);
 		}
-		LOGGER.info(checkData());
+		savePacksJson();
 	}
 	
 	public void savePacksJson() throws IOException {
@@ -110,7 +110,6 @@ public class RewardPackManager {
 		else {
 			LOGGER.info("RewardPackConfig.json File NOT Found, creating a default version.");
 			createDefaultPacks();
-			savePacksJson();
 		}
 	}
 	
@@ -151,6 +150,12 @@ public class RewardPackManager {
 			}
 		}
 		
+		if (packs.size() == 0) {
+			player.sendMessage(new StringTextComponent(
+					"There are no eligible Reward Packs for you to claim at the moment. Check back when you rank up!"), player.getUUID());
+			return;
+		}
+		
 		//Grant player rewards.
 		for (RewardPack rp : packs) {
 			//LOGGER.info("Evaluating pack");
@@ -167,9 +172,16 @@ public class RewardPackManager {
 				}
 				else {
 					LOGGER.info("Key not found: " + pair.itemID);
+					Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("minecraft:paper"));
+					ItemStack stack = new ItemStack(item, pair.amount);
+						CompoundNBT nbt = JsonToNBT.parseTag(
+								"{display:{Name:'{\"text\":\"Misconfigured Reward\",\"color\":\"red\",...}',Lore:['{\"text\":\"This item was created with the misconfigured id of: "
+						+ pair.itemID + "\"}','{\"text\":\"Please reach out to a server administrator/operator for help resolving this issue.\"}',color:3949738]}}");
+						stack.setTag(nbt);
+					ItemHandlerHelper.giveItemToPlayer(player, stack);
 					player.sendMessage(new StringTextComponent(
 							"Could not claim item with id of: " + pair.itemID + 
-							". Please reach out to a server administrator so they can resolve this issue inside defaultconfigs\\RewardPackConfig.json"), player.getUUID());
+							". Please reach out to a server administrator so they can resolve this issue inside" + Main.REWARDPACKCONFIGLOCATION), player.getUUID());
 				}
 				
 			}
