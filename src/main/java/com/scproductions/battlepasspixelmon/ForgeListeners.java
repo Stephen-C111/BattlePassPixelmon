@@ -5,6 +5,7 @@ import com.scproductions.battlepasspixelmon.commands.ClaimRewardPacksCommand;
 import com.scproductions.battlepasspixelmon.commands.ClaimRewardsCommand;
 import com.scproductions.battlepasspixelmon.commands.GiveProgressCommand;
 import com.scproductions.battlepasspixelmon.commands.GiveSelfProgressCommand;
+import com.scproductions.battlepasspixelmon.commands.NewRandomRewardCommand;
 import com.scproductions.battlepasspixelmon.commands.NewRewardPackCommand;
 import com.scproductions.battlepasspixelmon.commands.ReloadRewardPacksCommand;
 import com.scproductions.battlepasspixelmon.commands.ResetRankCommand;
@@ -36,6 +37,7 @@ public class ForgeListeners {
 		new ResetRankCommand(event.getDispatcher());
 		new NewRewardPackCommand(event.getDispatcher());
 		new ReloadRewardPacksCommand(event.getDispatcher());
+		new NewRandomRewardCommand(event.getDispatcher());
 		
 		ConfigCommand.register(event.getDispatcher());
 	}

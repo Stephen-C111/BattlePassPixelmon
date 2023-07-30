@@ -102,8 +102,22 @@ public class RewardPackManager {
 			DATA.clear();
 			while (fileInput.hasNextLine()) {
 				String jsonLine = fileInput.nextLine();
-				RewardPack rp = gson.fromJson(jsonLine, RewardPackManager.RewardPack.class);
-				DATA.put(rp.rank, rp);
+				RewardPack rp = null;
+				try {
+					rp = gson.fromJson(jsonLine, RewardPackManager.RewardPack.class);
+				}
+				catch (Exception e) {
+					LOGGER.info("Misconfigured line in RewardPacks, please be careful when formatting the configs. ");
+					continue;
+				}
+				
+				try {
+					DATA.put(rp.rank, rp);
+				}
+				catch (Exception e){
+					LOGGER.info("Empty or misconfigured line in RewardPacks, please be careful when formatting the configs. ");
+				}
+				
 			}
 			fileInput.close();
 		}

@@ -59,13 +59,34 @@ public class RankUpRewardManager {
 			DATA.clear();
 			while (fileInput.hasNextLine()) {
 				String jsonLine = fileInput.nextLine();
-				WeightedItemPair pair = gson.fromJson(jsonLine, WeightedItemPair.class);
-				DATA.add(pair);
+				WeightedItemPair pair = null;
+				try {
+					pair = gson.fromJson(jsonLine, WeightedItemPair.class);
+				}
+				catch (Exception e){
+					LOGGER.info("Misconfigured line in RandomRewards, please be careful when formatting the configs. ");
+					continue;
+				}
+				
+				try {
+					DATA.add(pair);
+				}
+				catch (Exception e){
+					LOGGER.info("Empty or misconfigured line in RandomRewards, please be careful when formatting the configs. ");
+				}
 			}
 			int key = 0;
 			for (WeightedItemPair pair : DATA) {
+				try {
 				for (int i = 0; i < pair.weight; i++) {
-					WEIGHTED_DATA.put(key++, pair);
+					
+						WEIGHTED_DATA.put(key++, pair);
+					
+				}
+				}
+				catch (Exception e){
+					LOGGER.info("Empty line in RandomRewards, please be careful when formatting the configs. ");
+					continue;
 				}
 			}
 			maxKey = key;
@@ -91,6 +112,7 @@ public class RankUpRewardManager {
 		WeightedItemPair wpair = new WeightedItemPair(pair, weight);
 		rrm.DATA.add(wpair);
 		rrm.saveRewardsJson();
+		rrm.loadRewardsJson();
 	}
 	
 	public static String rollRandomReward(ServerPlayerEntity player) throws CommandSyntaxException {
