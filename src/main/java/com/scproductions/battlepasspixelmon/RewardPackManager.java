@@ -175,8 +175,9 @@ public class RewardPackManager {
 					Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("minecraft:paper"));
 					ItemStack stack = new ItemStack(item, pair.amount);
 						CompoundNBT nbt = JsonToNBT.parseTag(
-								"{display:{Name:'{\"text\":\"Misconfigured Reward\",\"color\":\"red\",...}',Lore:['{\"text\":\"This item was created with the misconfigured id of: "
-						+ pair.itemID + "\"}','{\"text\":\"Please reach out to a server administrator/operator for help resolving this issue.\"}',color:3949738]}}");
+								"{display:{Name:'[{\"text\":\"Misconfigured Reward Pack Receipt\",\"color\":\"red\"}]',Lore:['[{\"text\":\"This item was created with the misconfigured id of: "
+						+ pair.itemID + 
+						"\",\"italic\":false,\"color\":\"red\"}]','[{\"text\":\"Please reach out to a server administrator/operator for help resolving this issue. \",\"italic\":false,\"color\":\"red\"}]']}}");
 						stack.setTag(nbt);
 					ItemHandlerHelper.giveItemToPlayer(player, stack);
 					player.sendMessage(new StringTextComponent(

@@ -80,7 +80,7 @@ public class RankUpRewardManager {
 	private void createDefaultRewards() throws IOException {
 		DATA.add(new WeightedItemPair(new ItemPair("pixelmon:xl_exp_candy", 1), 10));
 		DATA.add(new WeightedItemPair(new ItemPair("pixelmon:dream_ball", 64), 10));
-		DATA.add(new WeightedItemPair(new ItemPair("pixelmon:master_ball", 1), 1));
+		DATA.add(new WeightedItemPair(new ItemPair("pixelmon:master_ball", 1), 4));
 		DATA.add(new WeightedItemPair(new ItemPair("pixelmon:ultra_ball", 1), 10));
 		DATA.add(new WeightedItemPair(new ItemPair("pixelmon:dusk_ball", 64), 10));
 		saveRewardsJson();
@@ -111,9 +111,10 @@ public class RankUpRewardManager {
 			LOGGER.info("Random Reward Key not found: " + pair.itemID);
 			Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("minecraft:paper"));
 			ItemStack stack = new ItemStack(item, pair.amount);
-				CompoundNBT nbt = JsonToNBT.parseTag(
-						"{display:{Name:'{\"text\":\"Misconfigured Reward\",\"color\":\"red\",...}',Lore:['{\"text\":\"This item was created with the misconfigured id of: "
-				+ pair.itemID + "\"}','{\"text\":\"Please reach out to a server administrator/operator for help resolving this issue.\"}',color:3949738]}}");
+			CompoundNBT nbt = JsonToNBT.parseTag(
+					"{display:{Name:'[{\"text\":\"Misconfigured Random Reward Receipt\",\"color\":\"red\"}]',Lore:['[{\"text\":\"This item was created with the misconfigured id of: "
+			+ pair.itemID + 
+			"\",\"italic\":false,\"color\":\"red\"}]','[{\"text\":\"Please reach out to a server administrator/operator for help resolving this issue. \",\"italic\":false,\"color\":\"red\"}]']}}");
 				stack.setTag(nbt);
 			ItemHandlerHelper.giveItemToPlayer(player, stack);
 			player.sendMessage(new StringTextComponent(
