@@ -3,7 +3,7 @@ This is a BattlePass mod for use on Pixelmon servers.
 
 It responds to events such as catching and fighting pokemon, as well as other vanilla events to encourage playing the game how the player sees fit.
 Each player has a copy of a BattlePass that tracks their rank, progress to the next rank, and how many rewards they are eligible to claim.
-Players receive rewards for specific ranks via the RewardPack System explained below. For now, an Exp Candy XL is rewarded for every rank up as a generic reward.
+Players receive rewards for specific ranks via the RewardPack System explained below. As of 0.4.3, players can claim random rewards for each rank they've climbed.
 
 ![javaw_YRIcSBm5Dx](https://github.com/Stephen-C111/BattlePassPixelmon/assets/30613192/06e74a4b-ebf1-4ece-b9a7-5cc31206b241)
 
@@ -13,11 +13,12 @@ Players receive rewards for specific ranks via the RewardPack System explained b
 - /giveselfprogress [amount] : Grant yourself rank progress.
 - /resetrank [player] [--confirmationargument1] [--confirmationargument2] : Delete a player's progress. The deleted data will be saved in defaultconfigs in case this was an accident.
 - /newrewardpack [rank] [item] [amount] : Create a new RewardPack at runtime.
+- /newrandomreward [weight] [item] [amount] : Create a new random reward which is rolled when a player does /claimranks. Higher weights mean higher chances to get it. Check RankupRewardConfig.json to see what has been added to this list, and decide if you want to manually add or remove rewards from there.
 - /reloadrewardpacks : Reload the RewardPacksConfig.json file without restarting the server. Useful if you manually edited the config file during runtime.
 
 ##   Unprivileged:
 - /checkrank : Shows the player their rank and progress towards the next rank.
-- /claimranks all : Grants the player rewards for each unclaimed generic rank reward.
+- /claimranks : Grants the player rewards for each unclaimed random rank reward.
 - /claimrewardpacks : Checks to see if there are any new RewardPacks the player has not claimed yet, and supplies the player with the rewards if so.
 - /togglebattlepassmessages : Toggle allowing sending messages to the chat, if the player is annoyed by the messages.
 - /togglebattlepassbossbar : Toggle whether the boss bar should display BattlePass information.
