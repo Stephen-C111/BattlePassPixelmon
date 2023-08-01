@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import com.pixelmonmod.pixelmon.Pixelmon;
 import com.scproductions.battlepasspixelmon.bounties.BountyManager;
 import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty;
+import com.scproductions.battlepasspixelmon.bounties.BountyManagerListeners;
 
 import net.minecraft.block.Block;
 import net.minecraftforge.common.MinecraftForge;
@@ -58,23 +59,23 @@ public class Main
     private void setup(final FMLCommonSetupEvent event)
     {
         // some preinit code
-        //LOGGER.info("HELLO FROM PREINIT");
-        //LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
         PXListeners px = new PXListeners();
+        BountyManagerListeners bml = new BountyManagerListeners();
         Pixelmon.EVENT_BUS.register(this);
         Pixelmon.EVENT_BUS.register(px);
+        Pixelmon.EVENT_BUS.register(bml);
         
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
         // do something that can only be done on the client
-        //LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().options);
+        
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
     {
         // some example code to dispatch IMC to another mod
-        //InterModComms.sendTo("examplemod", "helloworld", () -> { LOGGER.info("Hello world from the MDK"); return "Hello world";});
+        
     }
 
     private void processIMC(final InterModProcessEvent event)
