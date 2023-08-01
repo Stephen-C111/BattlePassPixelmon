@@ -406,7 +406,7 @@ public class BountyManager extends WorldSavedData{
 			ObjectiveTag tag = ObjectiveTag.values()[pick];
 			bounty.addTag(tag);
 			float multiplier = random.nextFloat() + 0.8f;
-			bounty.goal += Math.min(1, tag.baseAmount * (multiplier));
+			bounty.goal += Math.max(1, tag.baseAmount * (multiplier));
 			bounty.reward += bounty.goal * tag.baseReward;
 			
 			//Add random pokemon elements to be used with CATCH/KILL objectives.
