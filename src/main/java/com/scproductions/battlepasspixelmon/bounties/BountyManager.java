@@ -1,7 +1,6 @@
 package com.scproductions.battlepasspixelmon.bounties;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +33,18 @@ public class BountyManager {
 	
 	public void loadCompletedData() {
 		
+	}
+	
+	public Bounty getBounty(UUID uuid) {
+		return DATA.get(uuid);
+	}
+	
+	public List<Bounty> getActiveBounties(){
+		List<Bounty> list = new ArrayList<Bounty>();
+		for (UUID uuid : ACTIVE_BOUNTIES) {
+			list.add(DATA.get(uuid));
+		}
+		return list;
 	}
 	
 	public void refreshBoard() {
