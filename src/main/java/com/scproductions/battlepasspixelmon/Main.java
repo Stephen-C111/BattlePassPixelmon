@@ -1,21 +1,16 @@
 package com.scproductions.battlepasspixelmon;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.pixelmonmod.pixelmon.Pixelmon;
-import com.pixelmonmod.pixelmon.api.registries.PixelmonItems;
-import com.scproductions.battlepasspixelmon.RewardPackManager.RewardPack;
+import com.scproductions.battlepasspixelmon.bounties.BountyManager;
+import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty;
 
 import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.CompositeModel.Loader;
-import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -103,6 +98,12 @@ public class Main
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
+        BountyManager.refreshBoard();
+        for (Bounty bounty : BountyManager.getActiveBounties()) {
+        	LOGGER.info(bounty.getFormattedString());
+        }
+        
         LOGGER.info("Finished Loading RewardPacks.");
     }
 

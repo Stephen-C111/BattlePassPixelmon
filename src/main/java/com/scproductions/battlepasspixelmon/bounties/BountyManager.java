@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,14 +24,26 @@ import com.google.gson.Gson;
 import com.pixelmonmod.pixelmon.api.pokemon.Element;
 import com.scproductions.battlepasspixelmon.BattlePassManager;
 import com.scproductions.battlepasspixelmon.Main;
-import com.scproductions.battlepasspixelmon.RewardPackManager;
-import com.scproductions.battlepasspixelmon.RewardPackManager.RewardPack;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
-public class BountyManager {
-	public static BountyManager bm = new BountyManager();
+public class BountyManager extends WorldSavedData{
+	
+	public static final String NAME = Main.MOD_ID + "_BountyManager";
+	
+	public BountyManager(String p_i2141_1_) {
+		super(p_i2141_1_);
+		// TODO Auto-generated constructor stub
+	}
+	
+	public BountyManager() {
+		this(NAME);
+	}
+	
 	public static Random random = new Random();
 	private static final Logger LOGGER = LogManager.getLogger("BattlePassPixelmon");
 	
@@ -39,12 +52,43 @@ public class BountyManager {
 	private final Multimap<UUID, UUID> ACCEPTED_BOUNTIES = LinkedHashMultimap.create(); //UUID playerUUID points to multiple UUID bountyUUID
 	private final Multimap<UUID, UUID> COMPLETED_BOUNTIES = LinkedHashMultimap.create(); //UUID playerUUID points to multiple UUID bountyUUID
 	
-	public void loadData() {
+	@Override
+	public void load(CompoundNBT nbt) {
+		CompoundNBT saveData = nbt.getCompound("savedatabounties");
+		//Load each data entry into the HashMap for runtime usage.
+		for (int i = 0; saveData.contains("data"+i); i++) {
+			Bounty bounty = Bounty.deserialize(saveData.getCompound("data"+i));
+			DATA.put(bounty.uuid, bounty);
+		}
+		try {
+			loadAcceptedData();
+			loadCompletedData();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
-	
-	public void saveData() {
+
+	@Override
+	public CompoundNBT save(CompoundNBT nbt) {
+		CompoundNBT saveData = new CompoundNBT();
+		int i = 0;
+		//Save each HashMap entry as "data1", "data2"... "datai". For data storage.
+		for(Iterator<Map.Entry<UUID, Bounty>> iterator = DATA.entrySet().iterator(); iterator.hasNext();) {
+			saveData.put("data" + i++, iterator.next().getValue().serialize());
+		}
+		nbt.put("savedatabounties", saveData);
+		//Return nbt to the WorldSavedData class
+		try {
+			saveAcceptedData();
+			saveCompletedData();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+		return nbt;
 	}
 	
 	public void loadAcceptedData() throws FileNotFoundException {
@@ -145,24 +189,30 @@ public class BountyManager {
 		fw.close();
 	}
 	
-	public Bounty getBounty(UUID uuid) {
-		return DATA.get(uuid);
+	public static Bounty getBounty(UUID uuid) {
+		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
+		BountyManager bm = world.getDataStorage().computeIfAbsent(BountyManager::new, BountyManager.NAME);
+		return bm.DATA.get(uuid);
 	}
 	
-	public List<Bounty> getActiveBounties(){
+	public static  List<Bounty> getActiveBounties(){
+		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
+		BountyManager bm = world.getDataStorage().computeIfAbsent(BountyManager::new, BountyManager.NAME);
 		List<Bounty> list = new ArrayList<Bounty>();
-		for (UUID uuid : ACTIVE_BOUNTIES) {
-			list.add(DATA.get(uuid));
+		for (UUID uuid : bm.ACTIVE_BOUNTIES) {
+			list.add(bm.DATA.get(uuid));
 		}
 		return list;
 	}
 	
-	public void refreshBoard() {
+	public static void refreshBoard() {
+		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
+		BountyManager bm = world.getDataStorage().computeIfAbsent(BountyManager::new, BountyManager.NAME);
 		//Clear the active board.
-		ACTIVE_BOUNTIES.clear();
+		bm.ACTIVE_BOUNTIES.clear();
 		//Clear old, unused bounties.
 		List<UUID> removeOldList = new ArrayList<UUID>();
-		for (Entry bountyEntry : DATA.entrySet()) {
+		for (Entry bountyEntry : bm.DATA.entrySet()) {
 			Bounty b = (Bounty) bountyEntry.getValue();
 			if (b.players == 0) {
 				//No one is working on this bounty anymore, delete it.
@@ -170,13 +220,13 @@ public class BountyManager {
 			}
 		}
 		for (UUID uuid : removeOldList) {
-			DATA.remove(uuid);
+			bm.DATA.remove(uuid);
 		}
 		//Create X bounties and populate the active board.
 		for (int i = 0; i < 12; i++) {
 			Bounty newBounty = Bounty.createRandomBounty();
-			DATA.put(newBounty.uuid, newBounty);
-			ACTIVE_BOUNTIES.add(newBounty.uuid);
+			bm.DATA.put(newBounty.uuid, newBounty);
+			bm.ACTIVE_BOUNTIES.add(newBounty.uuid);
 		}
 	}
 	
@@ -355,8 +405,8 @@ public class BountyManager {
 			int pick = BountyManager.random.nextInt(ObjectiveTag.values().length);
 			ObjectiveTag tag = ObjectiveTag.values()[pick];
 			bounty.addTag(tag);
-			float multiplier = random.nextFloat(1f);
-			bounty.goal += Math.min(1, tag.baseAmount * (multiplier + 0.8f));
+			float multiplier = random.nextFloat() + 0.8f;
+			bounty.goal += Math.min(1, tag.baseAmount * (multiplier));
 			bounty.reward += bounty.goal * tag.baseReward;
 			
 			//Add random pokemon elements to be used with CATCH/KILL objectives.
@@ -457,4 +507,5 @@ public class BountyManager {
 			}
 		}
 	}
+	
 }
