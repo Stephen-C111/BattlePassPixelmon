@@ -11,7 +11,9 @@ import java.util.UUID;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.pixelmonmod.pixelmon.api.pokemon.Element;
+import com.scproductions.battlepasspixelmon.BattlePassManager;
 
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 
 public class BountyManager {
@@ -87,6 +89,39 @@ public class BountyManager {
 		}
 		List<UUID> uuids = (List<UUID>) COMPLETED_BOUNTIES.get(playerUUID);
 		return uuids;
+	}
+	
+	public boolean acceptBounty(UUID playerUUID, UUID bountyUUID) {
+		if (ACCEPTED_BOUNTIES.get(playerUUID).contains(bountyUUID)) {
+			return false;
+		}
+		if (COMPLETED_BOUNTIES.get(playerUUID).contains(bountyUUID)) {
+			return false;
+		}
+		ACCEPTED_BOUNTIES.put(playerUUID, bountyUUID);
+		return true;
+	}
+	
+	public boolean discardBounty(UUID playerUUID, UUID bountyUUID) {
+		if (ACCEPTED_BOUNTIES.containsEntry(playerUUID, bountyUUID)) {
+			ACCEPTED_BOUNTIES.remove(playerUUID, bountyUUID);
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean completeBounty(ServerPlayerEntity player, UUID bountyUUID) {
+		UUID playerUUID = player.getUUID();
+		if (ACCEPTED_BOUNTIES.containsEntry(playerUUID, bountyUUID)) {
+			//Dispense reward
+			BattlePassManager.grantProgress(playerUUID, DATA.get(bountyUUID).reward, false);
+			//Move from ACCEPTED to COMPLETED
+			ACCEPTED_BOUNTIES.remove(playerUUID, bountyUUID);
+			COMPLETED_BOUNTIES.put(playerUUID, bountyUUID);
+			BattlePassManager.sendPlayerInfo(player, DATA.get(bountyUUID).reward, "Completed a Bounty:");
+			return true;
+		}
+		return false;
 	}
 	
 	public static class Bounty{
