@@ -1,9 +1,11 @@
 package com.scproductions.battlepasspixelmon.bounties;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
@@ -18,9 +20,9 @@ public class BountyManager {
 	public static Random random = new Random();
 	
 	private final Map<UUID, Bounty> DATA = new HashMap<UUID, Bounty>();
-	private final Map<UUID, Bounty> ACTIVE_BOUNTIES = new HashMap<UUID, Bounty>();
-	private final Multimap<UUID, UUID> ACCEPTED_BOUNTIES = LinkedHashMultimap.create();;
-	private final Multimap<UUID, UUID> COMPLETED_BOUNTIES = LinkedHashMultimap.create();;
+	private final List<UUID> ACTIVE_BOUNTIES = new ArrayList<UUID>();
+	private final Multimap<UUID, UUID> ACCEPTED_BOUNTIES = LinkedHashMultimap.create(); //UUID playerUUID points to multiple UUID bountyUUID
+	private final Multimap<UUID, UUID> COMPLETED_BOUNTIES = LinkedHashMultimap.create(); //UUID playerUUID points to multiple UUID bountyUUID
 	
 	public void loadData() {
 		
@@ -32,6 +34,48 @@ public class BountyManager {
 	
 	public void loadCompletedData() {
 		
+	}
+	
+	public void refreshBoard() {
+		//Clear the active board.
+		ACTIVE_BOUNTIES.clear();
+		//Clear old, unused bounties.
+		List<UUID> removeOldList = new ArrayList<UUID>();
+		for (Entry bountyEntry : DATA.entrySet()) {
+			Bounty b = (Bounty) bountyEntry.getValue();
+			if (b.players == 0) {
+				//No one is working on this bounty anymore, delete it.
+				removeOldList.add(b.uuid);
+			}
+		}
+		for (UUID uuid : removeOldList) {
+			DATA.remove(uuid);
+		}
+		//Create X bounties and populate the active board.
+		for (int i = 0; i < 12; i++) {
+			Bounty newBounty = Bounty.createRandomBounty();
+			DATA.put(newBounty.uuid, newBounty);
+			ACTIVE_BOUNTIES.add(newBounty.uuid);
+		}
+	}
+	
+	public List<Bounty> getPlayerAcceptedBounties(UUID playerUUID) {
+		if (ACCEPTED_BOUNTIES.containsKey(playerUUID) == false) {
+			return null;
+		}
+		List<Bounty> bounties = new ArrayList<Bounty>();
+		for (UUID uuid : ACCEPTED_BOUNTIES.get(playerUUID)) {
+			bounties.add(DATA.get(uuid));
+		}
+		return bounties;
+	}
+	
+	public List<UUID> getPlayerCompletedBounties(UUID playerUUID) {
+		if (COMPLETED_BOUNTIES.containsKey(playerUUID) == false) {
+			return null;
+		}
+		List<UUID> uuids = (List<UUID>) COMPLETED_BOUNTIES.get(playerUUID);
+		return uuids;
 	}
 	
 	public static class Bounty{
@@ -150,7 +194,7 @@ public class BountyManager {
 			return s;
 		}
 		
-		public Bounty createRandomBounty() {
+		public static Bounty createRandomBounty() {
 			Bounty bounty = new Bounty();
 			
 			//Add objectives
