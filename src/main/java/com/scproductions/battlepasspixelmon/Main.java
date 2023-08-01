@@ -40,7 +40,8 @@ public class Main
     public static final String MOD_ID = "battlepasspixelmon";
     public static final String REWARDPACKCONFIGLOCATION = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath()).getFileName().toString() + "\\RewardPackConfig-0.4.1.json";
     public static final String RANKUPREWARDCONFIGLOCATION = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath()).getFileName().toString() + "\\RankupRewardConfig.json";
-    
+    public static final String ACCEPTEDBOUNTIESCONFIGLOCATION = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath()).getFileName().toString() + "\\AcceptedBounties.json";
+    public static final String COMPLETEDBOUNTIESCONFIGLOCATION = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath()).getFileName().toString() + "\\CompletedBounties.json";
 
     public Main() {
         // Register the setup method for modloading

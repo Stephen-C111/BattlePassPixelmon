@@ -1,17 +1,30 @@
 package com.scproductions.battlepasspixelmon.bounties;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.UUID;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.gson.Gson;
 import com.pixelmonmod.pixelmon.api.pokemon.Element;
 import com.scproductions.battlepasspixelmon.BattlePassManager;
+import com.scproductions.battlepasspixelmon.Main;
+import com.scproductions.battlepasspixelmon.RewardPackManager;
+import com.scproductions.battlepasspixelmon.RewardPackManager.RewardPack;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -19,6 +32,7 @@ import net.minecraft.nbt.CompoundNBT;
 public class BountyManager {
 	public static BountyManager bm = new BountyManager();
 	public static Random random = new Random();
+	private static final Logger LOGGER = LogManager.getLogger("BattlePassPixelmon");
 	
 	private final Map<UUID, Bounty> DATA = new HashMap<UUID, Bounty>();
 	private final List<UUID> ACTIVE_BOUNTIES = new ArrayList<UUID>();
@@ -29,12 +43,106 @@ public class BountyManager {
 		
 	}
 	
-	public void loadAcceptedData() {
+	public void saveData() {
 		
 	}
 	
-	public void loadCompletedData() {
-		
+	public void loadAcceptedData() throws FileNotFoundException {
+		String fileName = Main.ACCEPTEDBOUNTIESCONFIGLOCATION;
+		File f = new File(fileName);
+		if (f.exists()) {
+			Scanner fileInput = new Scanner(f);
+			Gson gson = new Gson();
+			ACCEPTED_BOUNTIES.clear();
+			while (fileInput.hasNextLine()) {
+				String jsonLine = fileInput.nextLine();
+				UUIDEntries entries = null;
+				try {
+					entries = gson.fromJson(jsonLine, UUIDEntries.class);
+				}
+				catch (Exception e) {
+					LOGGER.info("Misconfigured line in AcceptedBounties, please be careful when formatting the configs. ");
+					continue;
+				}
+				
+				try {
+					for (UUID bountyUUID : entries.uuids) {
+						ACCEPTED_BOUNTIES.put(entries.uuid, bountyUUID);
+					}
+				}
+				catch (Exception e){
+					LOGGER.info("Empty or misconfigured line in AcceptedBounties, please be careful when formatting the configs. ");
+				}
+				
+			}
+			fileInput.close();
+		}
+		else {
+			LOGGER.info("AcceptedBounties.json File NOT Found, one will be made once there is relevant data to be saved.");
+		}
+	}
+	
+	public void saveAcceptedData() throws IOException {
+		String fileName = Main.ACCEPTEDBOUNTIESCONFIGLOCATION;
+		File f = new File(fileName);
+		FileWriter fw = new FileWriter(f);
+		Gson gson = new Gson();
+		for (UUID uuidE : ACCEPTED_BOUNTIES.keys()) {
+			UUIDEntries entry = new UUIDEntries(uuidE, ACCEPTED_BOUNTIES.get(uuidE));
+			String jsonLine = gson.toJson(entry, UUIDEntries.class) + "\n";
+			//LOGGER.info("Appending to " + fileName);
+			fw.append(jsonLine);
+		}
+		fw.close();
+	}
+	
+	public void loadCompletedData() throws FileNotFoundException {
+		String fileName = Main.COMPLETEDBOUNTIESCONFIGLOCATION;
+		File f = new File(fileName);
+		if (f.exists()) {
+			Scanner fileInput = new Scanner(f);
+			Gson gson = new Gson();
+			ACCEPTED_BOUNTIES.clear();
+			while (fileInput.hasNextLine()) {
+				String jsonLine = fileInput.nextLine();
+				UUIDEntries entries = null;
+				try {
+					entries = gson.fromJson(jsonLine, UUIDEntries.class);
+				}
+				catch (Exception e) {
+					LOGGER.info("Misconfigured line in CompletedBounties, please be careful when formatting the configs. ");
+					continue;
+				}
+				
+				try {
+					for (UUID bountyUUID : entries.uuids) {
+						COMPLETED_BOUNTIES.put(entries.uuid, bountyUUID);
+					}
+				}
+				catch (Exception e){
+					LOGGER.info("Empty or misconfigured line in CompletedBounties, please be careful when formatting the configs. ");
+				}
+				
+			}
+			fileInput.close();
+		}
+		else {
+			LOGGER.info("CompletedBounties.json File NOT Found, one will be made once there is relevant data to be saved.");
+		}
+	}
+	
+	public void saveCompletedData() throws IOException {
+		String fileName = Main.COMPLETEDBOUNTIESCONFIGLOCATION;
+		File f = new File(fileName);
+		FileWriter fw = new FileWriter(f);
+		Gson gson = new Gson();
+		for (UUID uuidE : COMPLETED_BOUNTIES.keys()) {
+			UUIDEntries entry = new UUIDEntries(uuidE, COMPLETED_BOUNTIES.get(uuidE));
+			String jsonLine = gson.toJson(entry, UUIDEntries.class) + "\n";
+			//LOGGER.info("Appending to " + fileName);
+			fw.append(jsonLine);
+		}
+		fw.close();
 	}
 	
 	public Bounty getBounty(UUID uuid) {
@@ -333,6 +441,19 @@ public class BountyManager {
 			ObjectiveTag(int _baseReward, int _baseAmount){
 				baseReward = _baseReward;
 				baseAmount = _baseAmount;
+			}
+		}
+	}
+	public static class UUIDEntries {
+		UUID uuid;
+		UUID[] uuids;
+		
+		public UUIDEntries(UUID _uuid, Collection<UUID> _uuids) {
+			uuid = _uuid;
+			uuids = new UUID[_uuids.size()];
+			int i = 0;
+			for (UUID id : _uuids) {
+				uuids[i] = id;
 			}
 		}
 	}
