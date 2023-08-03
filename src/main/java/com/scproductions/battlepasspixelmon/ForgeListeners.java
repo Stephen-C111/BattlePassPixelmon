@@ -1,8 +1,10 @@
 package com.scproductions.battlepasspixelmon;
 
+import com.scproductions.battlepasspixelmon.commands.AcceptBountyCommand;
 import com.scproductions.battlepasspixelmon.commands.CheckRankCommand;
 import com.scproductions.battlepasspixelmon.commands.ClaimRewardPacksCommand;
 import com.scproductions.battlepasspixelmon.commands.ClaimRewardsCommand;
+import com.scproductions.battlepasspixelmon.commands.GetJournalCommand;
 import com.scproductions.battlepasspixelmon.commands.GiveProgressCommand;
 import com.scproductions.battlepasspixelmon.commands.GiveSelfProgressCommand;
 import com.scproductions.battlepasspixelmon.commands.NewRandomRewardCommand;
@@ -11,6 +13,7 @@ import com.scproductions.battlepasspixelmon.commands.ReloadRewardPacksCommand;
 import com.scproductions.battlepasspixelmon.commands.ResetRankCommand;
 import com.scproductions.battlepasspixelmon.commands.ToggleBattlePassBossBarCommand;
 import com.scproductions.battlepasspixelmon.commands.ToggleBattlePassMessagesCommand;
+import com.scproductions.battlepasspixelmon.commands.ViewAcceptedBountiesCommand;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -38,6 +41,9 @@ public class ForgeListeners {
 		new NewRewardPackCommand(event.getDispatcher());
 		new ReloadRewardPacksCommand(event.getDispatcher());
 		new NewRandomRewardCommand(event.getDispatcher());
+		new GetJournalCommand(event.getDispatcher());
+		new AcceptBountyCommand(event.getDispatcher());
+		new ViewAcceptedBountiesCommand(event.getDispatcher());
 		
 		ConfigCommand.register(event.getDispatcher());
 	}
@@ -63,6 +69,7 @@ public class ForgeListeners {
 			if (BattlePassManager.getRank(event.getEntity().getUUID()) == -999) {
 				BattlePassManager.putData(event.getEntity().getUUID(), 0, 0, 0);
 			}
+			//BountyGUIHandler.bgui.openBountyBoard((ServerPlayerEntity) event.getEntity());
 		}
 	}
 	

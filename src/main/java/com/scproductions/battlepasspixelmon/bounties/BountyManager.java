@@ -21,9 +21,11 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.pixelmonmod.pixelmon.api.pokemon.Element;
 import com.scproductions.battlepasspixelmon.BattlePassManager;
 import com.scproductions.battlepasspixelmon.Main;
+import com.scproductions.battlepasspixelmon.bounties.gui.BountyGUIHandler;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -35,13 +37,19 @@ public class BountyManager extends WorldSavedData{
 	
 	public static final String NAME = Main.MOD_ID + "_BountyManager";
 	
+	public static boolean refreshing = false;
+	
 	public BountyManager(String p_i2141_1_) {
 		super(p_i2141_1_);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public BountyManager() {
 		this(NAME);
+	}
+	
+	public static BountyManager getDataHandler() {
+		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
+		return world.getDataStorage().computeIfAbsent(BountyManager::new, BountyManager.NAME);
 	}
 	
 	public static Random random = new Random();
@@ -49,11 +57,12 @@ public class BountyManager extends WorldSavedData{
 	
 	private final Map<UUID, Bounty> DATA = new HashMap<UUID, Bounty>();
 	private final List<UUID> ACTIVE_BOUNTIES = new ArrayList<UUID>();
-	private final Multimap<UUID, UUID> ACCEPTED_BOUNTIES = LinkedHashMultimap.create(); //UUID playerUUID points to multiple UUID bountyUUID
-	private final Multimap<UUID, UUID> COMPLETED_BOUNTIES = LinkedHashMultimap.create(); //UUID playerUUID points to multiple UUID bountyUUID
+	private final Multimap<UUID, BountyProgressTracker> ACCEPTED_BOUNTIES = LinkedHashMultimap.create(); //UUID playerUUID points to multiple UUID bountyUUID
+	private final Multimap<UUID, BountyProgressTracker> COMPLETED_BOUNTIES = LinkedHashMultimap.create(); //UUID playerUUID points to multiple UUID bountyUUID
 	
 	@Override
 	public void load(CompoundNBT nbt) {
+		LOGGER.info("Loading bounties...");
 		CompoundNBT saveData = nbt.getCompound("savedatabounties");
 		//Load each data entry into the HashMap for runtime usage.
 		for (int i = 0; saveData.contains("data"+i); i++) {
@@ -72,6 +81,7 @@ public class BountyManager extends WorldSavedData{
 
 	@Override
 	public CompoundNBT save(CompoundNBT nbt) {
+		LOGGER.info("Saving bounties...");
 		CompoundNBT saveData = new CompoundNBT();
 		int i = 0;
 		//Save each HashMap entry as "data1", "data2"... "datai". For data storage.
@@ -81,10 +91,12 @@ public class BountyManager extends WorldSavedData{
 		nbt.put("savedatabounties", saveData);
 		//Return nbt to the WorldSavedData class
 		try {
+			LOGGER.info("Try Saving Data.");
 			saveAcceptedData();
 			saveCompletedData();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			LOGGER.info("ERROR SAVING DATA.");
 			e.printStackTrace();
 		}
 		
@@ -110,7 +122,7 @@ public class BountyManager extends WorldSavedData{
 				}
 				
 				try {
-					for (UUID bountyUUID : entries.uuids) {
+					for (BountyProgressTracker bountyUUID : entries.trackers) {
 						ACCEPTED_BOUNTIES.put(entries.uuid, bountyUUID);
 					}
 				}
@@ -132,6 +144,7 @@ public class BountyManager extends WorldSavedData{
 		FileWriter fw = new FileWriter(f);
 		Gson gson = new Gson();
 		for (UUID uuidE : ACCEPTED_BOUNTIES.keys()) {
+			LOGGER.info("Try Saving Data ACCEPTED_BOUNTIES: " + uuidE);
 			UUIDEntries entry = new UUIDEntries(uuidE, ACCEPTED_BOUNTIES.get(uuidE));
 			String jsonLine = gson.toJson(entry, UUIDEntries.class) + "\n";
 			//LOGGER.info("Appending to " + fileName);
@@ -159,8 +172,8 @@ public class BountyManager extends WorldSavedData{
 				}
 				
 				try {
-					for (UUID bountyUUID : entries.uuids) {
-						COMPLETED_BOUNTIES.put(entries.uuid, bountyUUID);
+					for (BountyProgressTracker bountyUUID : entries.trackers) {
+						COMPLETED_BOUNTIES.put(entries.uuid, new BountyProgressTracker(bountyUUID.uuid));
 					}
 				}
 				catch (Exception e){
@@ -181,6 +194,7 @@ public class BountyManager extends WorldSavedData{
 		FileWriter fw = new FileWriter(f);
 		Gson gson = new Gson();
 		for (UUID uuidE : COMPLETED_BOUNTIES.keys()) {
+			LOGGER.info("Try Saving Data COMPLETED_BOUNTIES: " + uuidE);
 			UUIDEntries entry = new UUIDEntries(uuidE, COMPLETED_BOUNTIES.get(uuidE));
 			String jsonLine = gson.toJson(entry, UUIDEntries.class) + "\n";
 			//LOGGER.info("Appending to " + fileName);
@@ -205,89 +219,119 @@ public class BountyManager extends WorldSavedData{
 		return list;
 	}
 	
-	public static void refreshBoard() {
-		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
-		BountyManager bm = world.getDataStorage().computeIfAbsent(BountyManager::new, BountyManager.NAME);
+	public static boolean refreshBoard() throws CommandSyntaxException {
+		BountyManager bm = getDataHandler();
+		if (refreshing) {
+			//do not allow race condition
+			return false;
+		}
+		refreshing = true; //acts as a lock to prevent a race condition.
 		//Clear the active board.
 		bm.ACTIVE_BOUNTIES.clear();
 		//Clear old, unused bounties.
+		LOGGER.info("Removing Old Entries...");
 		List<UUID> removeOldList = new ArrayList<UUID>();
 		for (Entry bountyEntry : bm.DATA.entrySet()) {
+			LOGGER.info("Casting entryvalue to bounty...");
 			Bounty b = (Bounty) bountyEntry.getValue();
-			if (b.players == 0) {
+			LOGGER.info("Testing bounty: " + b.getFormattedString());
+			if (b.players < 1) {
 				//No one is working on this bounty anymore, delete it.
 				removeOldList.add(b.uuid);
 			}
 		}
-		for (UUID uuid : removeOldList) {
-			bm.DATA.remove(uuid);
+		if (removeOldList.size() > 0) {
+			bm.setDirty();
+			for (UUID uuid : removeOldList) {
+				bm.DATA.remove(uuid);
+			}
 		}
+		
 		//Create X bounties and populate the active board.
 		for (int i = 0; i < 12; i++) {
 			Bounty newBounty = Bounty.createRandomBounty();
 			bm.DATA.put(newBounty.uuid, newBounty);
 			bm.ACTIVE_BOUNTIES.add(newBounty.uuid);
 		}
+		for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+			BountyGUIHandler.bgui.updateBountyJournal(player, false);
+		}
+		refreshing = false; //unlock the board.
+		return true;
 	}
 	
-	public List<Bounty> getPlayerAcceptedBounties(UUID playerUUID) {
-		if (ACCEPTED_BOUNTIES.containsKey(playerUUID) == false) {
-			return null;
+	public static  List<Bounty> getPlayerAcceptedBounties(UUID playerUUID) {
+		BountyManager bm = getDataHandler();
+		if (bm.ACCEPTED_BOUNTIES.containsKey(playerUUID) == false) {
+			return new ArrayList<Bounty>();
 		}
 		List<Bounty> bounties = new ArrayList<Bounty>();
-		for (UUID uuid : ACCEPTED_BOUNTIES.get(playerUUID)) {
-			bounties.add(DATA.get(uuid));
+		for (BountyProgressTracker tracker : bm.ACCEPTED_BOUNTIES.get(playerUUID)) {
+			bounties.add(bm.DATA.get(tracker.uuid));
 		}
 		return bounties;
 	}
 	
-	public List<UUID> getPlayerCompletedBounties(UUID playerUUID) {
-		if (COMPLETED_BOUNTIES.containsKey(playerUUID) == false) {
+	public static  List<UUID> getPlayerCompletedBounties(UUID playerUUID) {
+		BountyManager bm = getDataHandler();
+		if (bm.COMPLETED_BOUNTIES.containsKey(playerUUID) == false) {
 			return null;
 		}
-		List<UUID> uuids = (List<UUID>) COMPLETED_BOUNTIES.get(playerUUID);
+		List<BountyProgressTracker> trackers = (List<BountyProgressTracker>) bm.COMPLETED_BOUNTIES.get(playerUUID);
+		List<UUID> uuids = new ArrayList<UUID>();
+		for (BountyProgressTracker t : trackers) {
+			uuids.add(t.uuid);
+		}
 		return uuids;
 	}
 	
-	public boolean acceptBounty(UUID playerUUID, UUID bountyUUID) {
-		if (ACCEPTED_BOUNTIES.get(playerUUID).contains(bountyUUID)) {
+	public static boolean acceptBounty(UUID playerUUID, UUID bountyUUID) {
+		BountyManager bm = getDataHandler();
+		if (bm.ACCEPTED_BOUNTIES.get(playerUUID).contains(bountyUUID)) {
 			return false;
 		}
-		if (COMPLETED_BOUNTIES.get(playerUUID).contains(bountyUUID)) {
+		if (bm.COMPLETED_BOUNTIES.get(playerUUID).contains(bountyUUID)) {
 			return false;
 		}
-		ACCEPTED_BOUNTIES.put(playerUUID, bountyUUID);
+		bm.ACCEPTED_BOUNTIES.put(playerUUID, new BountyProgressTracker(bountyUUID));
+		bm.DATA.get(bountyUUID).players++;
+		bm.setDirty();
 		return true;
 	}
 	
-	public boolean discardBounty(UUID playerUUID, UUID bountyUUID) {
-		if (ACCEPTED_BOUNTIES.containsEntry(playerUUID, bountyUUID)) {
-			ACCEPTED_BOUNTIES.remove(playerUUID, bountyUUID);
+	public static  boolean discardBounty(UUID playerUUID, UUID bountyUUID) {
+		BountyManager bm = getDataHandler();
+		if (bm.ACCEPTED_BOUNTIES.containsEntry(playerUUID, bountyUUID)) {
+			bm.ACCEPTED_BOUNTIES.remove(playerUUID, bountyUUID);
+			bm.DATA.get(bountyUUID).players--;
+			bm.setDirty();
 			return true;
 		}
 		return false;
 	}
 	
-	public boolean completeBounty(ServerPlayerEntity player, UUID bountyUUID) {
+	public static boolean completeBounty(ServerPlayerEntity player, UUID bountyUUID) {
+		BountyManager bm = getDataHandler();
 		UUID playerUUID = player.getUUID();
-		if (ACCEPTED_BOUNTIES.containsEntry(playerUUID, bountyUUID)) {
+		if (bm.ACCEPTED_BOUNTIES.containsEntry(playerUUID, bountyUUID)) {
 			//Dispense reward
-			BattlePassManager.grantProgress(playerUUID, DATA.get(bountyUUID).reward, false);
+			BattlePassManager.grantProgress(playerUUID, bm.DATA.get(bountyUUID).reward, false);
 			//Move from ACCEPTED to COMPLETED
-			ACCEPTED_BOUNTIES.remove(playerUUID, bountyUUID);
-			COMPLETED_BOUNTIES.put(playerUUID, bountyUUID);
-			BattlePassManager.sendPlayerInfo(player, DATA.get(bountyUUID).reward, "Completed a Bounty:");
+			bm.ACCEPTED_BOUNTIES.remove(playerUUID, bountyUUID);
+			bm.COMPLETED_BOUNTIES.put(playerUUID, new BountyProgressTracker(bountyUUID));
+			bm.DATA.get(bountyUUID).players--;
+			BattlePassManager.sendPlayerInfo(player, bm.DATA.get(bountyUUID).reward, "Completed a Bounty:");
+			bm.setDirty();
 			return true;
 		}
 		return false;
 	}
 	
 	public static class Bounty{
-		UUID uuid;
+		public UUID uuid;
 		int players;
 		List<Element> elements;
 		List<ObjectiveTag> tags;
-		int progress;
 		int goal;
 		int reward;
 		
@@ -297,18 +341,16 @@ public class BountyManager extends WorldSavedData{
 			tags = new ArrayList<ObjectiveTag>();
 			uuid = UUID.randomUUID();
 			players = 0;
-			progress = 0;
 			goal = 0;
 			reward = 0;
 		}
 		
 		//Bounty constructor for loading in Bounties
-		public Bounty(UUID _uuid, int _players, List<Element> _elements, List<ObjectiveTag> _tags, int _progress, int _goal, int _reward){
+		public Bounty(UUID _uuid, int _players, List<Element> _elements, List<ObjectiveTag> _tags, int _goal, int _reward){
 			elements = _elements;
 			tags = _tags;
 			uuid = _uuid;
 			players = _players;
-			progress = _progress;
 			goal = _goal;
 			reward = _reward;
 		}
@@ -405,7 +447,10 @@ public class BountyManager extends WorldSavedData{
 			int pick = BountyManager.random.nextInt(ObjectiveTag.values().length);
 			ObjectiveTag tag = ObjectiveTag.values()[pick];
 			bounty.addTag(tag);
-			float multiplier = random.nextFloat() + 0.8f;
+			float multiplier = (random.nextFloat() * 5) + 1f;
+			if (tag == ObjectiveTag.LEGEND) {
+				multiplier = 1;
+			}
 			bounty.goal += Math.max(1, tag.baseAmount * (multiplier));
 			bounty.reward += bounty.goal * tag.baseReward;
 			
@@ -445,7 +490,6 @@ public class BountyManager extends WorldSavedData{
 					CompoundNBT nbt = new CompoundNBT();
 					nbt.putUUID("uuid", uuid);
 					nbt.putInt("players", players);
-					nbt.putInt("progress", progress);
 					nbt.putInt("goal", goal);
 					nbt.putInt("reward", reward);
 					int i = 0;
@@ -474,7 +518,7 @@ public class BountyManager extends WorldSavedData{
 						String s = nbt.getString("element" + i++);
 						elements.add(Element.parseOrNull(s));
 					}
-					return new Bounty(nbt.getUUID("uuid"), nbt.getInt("players"), elements, tags,  nbt.getInt("progress"),  nbt.getInt("goal"),  nbt.getInt("reward"));
+					return new Bounty(nbt.getUUID("uuid"), nbt.getInt("players"), elements, tags,  nbt.getInt("goal"),  nbt.getInt("reward"));
 				}
 		
 		public enum ObjectiveTag {
@@ -484,7 +528,7 @@ public class BountyManager extends WorldSavedData{
 			LEGEND (500, 1),
 			TRAINER (100, 1),
 			BOSS (100, 1),
-			FISH (5, 1);
+			FISH (50, 10);
 			
 			int baseReward;
 			int baseAmount;
@@ -496,15 +540,30 @@ public class BountyManager extends WorldSavedData{
 	}
 	public static class UUIDEntries {
 		UUID uuid;
-		UUID[] uuids;
+		BountyProgressTracker[] trackers;
 		
-		public UUIDEntries(UUID _uuid, Collection<UUID> _uuids) {
+		public UUIDEntries(UUID _uuid, Collection<BountyProgressTracker> _trackers) {
 			uuid = _uuid;
-			uuids = new UUID[_uuids.size()];
+			trackers = new BountyProgressTracker[_trackers.size()];
 			int i = 0;
-			for (UUID id : _uuids) {
-				uuids[i] = id;
+			for (BountyProgressTracker id : _trackers) {
+				trackers[i] = id;
 			}
+		}
+	}
+	
+	public static class BountyProgressTracker {
+		public UUID uuid;
+		public int progress;
+		
+		public BountyProgressTracker(UUID _uuid) {
+			uuid = _uuid;
+			progress = 0;
+		}
+		
+		public BountyProgressTracker(UUID _uuid, int _progress) {
+			uuid = _uuid;
+			progress = _progress;
 		}
 	}
 	

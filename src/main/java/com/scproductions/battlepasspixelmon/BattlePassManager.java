@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.scproductions.battlepasspixelmon.bounties.BountyManager;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -35,6 +36,7 @@ public class BattlePassManager extends WorldSavedData {
 
 	@Override
 	public void load(CompoundNBT nbt) {
+		Logger.getLogger("BattlePassPixelmon").info("Loading BattlePass data...");
 		CompoundNBT saveData = nbt.getCompound("savedata");
 		//Load each data entry into the HashMap for runtime usage.
 		for (int i = 0; saveData.contains("data"+i); i++) {

@@ -28,6 +28,8 @@ public class BattlePassConfig {
     public static final ForgeConfigSpec.ConfigValue<Boolean> use_boss_bar_by_default;
     public static final ForgeConfigSpec.ConfigValue<String> boss_bar_default_title;
     
+    public static final ForgeConfigSpec.ConfigValue<Integer> minutes_to_refresh_board;
+    
     static {
     	BUILDER.push("Config for BattlePassPixelmon");
     	
@@ -51,6 +53,8 @@ public class BattlePassConfig {
     	use_boss_bar_by_default = BUILDER.comment("Use the boss bar to display player rank information by default. Set to false to disable this behavior.")
     			.define("UseBossBarByDefault", true);
     	boss_bar_default_title = BUILDER.comment("Change the phrase on the boss bar, default is \'Battle Pass | \'").define("BossBarDefaultTitle", "Battle Pass | ");
+    	
+    	minutes_to_refresh_board = BUILDER.comment("Time it takes for the bounty board to refresh in minutes.").define("MinutesToRefreshBoard", 30);
     	
     	BUILDER.pop();
     	SPEC = BUILDER.build();
