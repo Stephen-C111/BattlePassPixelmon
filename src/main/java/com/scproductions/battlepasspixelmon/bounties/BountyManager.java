@@ -529,7 +529,7 @@ public class BountyManager extends WorldSavedData{
 					i = 0;
 					while (nbt.contains("tag" + i)) {
 						String s = nbt.getString("tag" + i++);
-						elements.add(Element.parseOrNull(s));
+						tags.add(ObjectiveTag.parseOrNull(s));
 					}
 					return new Bounty(nbt.getUUID("uuid"), nbt.getInt("players"), elements, tags,  nbt.getInt("goal"),  nbt.getInt("reward"));
 				}
@@ -548,6 +548,23 @@ public class BountyManager extends WorldSavedData{
 			ObjectiveTag(int _baseReward, int _baseAmount){
 				baseReward = _baseReward;
 				baseAmount = _baseAmount;
+			}
+			static ObjectiveTag parseOrNull(String s) {
+				switch(s.toLowerCase()) {
+				case "kill":
+					return ObjectiveTag.KILL;
+				case "catch":
+					return ObjectiveTag.CATCH;
+				case "legend":
+					return ObjectiveTag.LEGEND;
+				case "trainer":
+					return ObjectiveTag.TRAINER;
+				case "boss":
+					return ObjectiveTag.BOSS;
+				case "fish":
+					return ObjectiveTag.FISH;
+				}
+				return null;
 			}
 		}
 	}
