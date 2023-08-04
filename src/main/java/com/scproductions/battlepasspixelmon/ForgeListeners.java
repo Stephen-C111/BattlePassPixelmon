@@ -1,5 +1,8 @@
 package com.scproductions.battlepasspixelmon;
 
+import com.scproductions.battlepasspixelmon.bounties.BountyManager;
+import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty;
+import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty.ObjectiveTag;
 import com.scproductions.battlepasspixelmon.commands.AcceptBountyCommand;
 import com.scproductions.battlepasspixelmon.commands.CheckRankCommand;
 import com.scproductions.battlepasspixelmon.commands.ClaimRewardPacksCommand;
@@ -56,10 +59,18 @@ public class ForgeListeners {
 	
 	@SubscribeEvent
 	public static void onVanillaFish(ItemFishedEvent event) {
+		//BattlePassManager listening in
 		ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
 		int baseValue = BattlePassConfig.vanilla_fish_base_reward.get();
 		BattlePassManager.grantProgress(player.getUUID(), baseValue, false);
 		BattlePassManager.sendPlayerInfo(player, baseValue, "Caught something with a normal rod:");
+		
+		//BountyManager listening in
+		for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(player.getUUID())) {
+			if (bounty.tags.contains(ObjectiveTag.FISH)){
+				BountyManager.grantProgress(player, bounty.uuid, 1);
+			}
+		}
 	}
 	
 	@SubscribeEvent

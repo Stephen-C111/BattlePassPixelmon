@@ -17,6 +17,9 @@ import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.api.pokemon.boss.BossTiers;
 import com.pixelmonmod.pixelmon.battles.controller.participants.WildPixelmonParticipant;
 import com.pixelmonmod.pixelmon.entities.npcs.NPCTrainer;
+import com.scproductions.battlepasspixelmon.bounties.BountyManager;
+import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty;
+import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty.ObjectiveTag;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -41,6 +44,12 @@ public class PXListeners {
 				int realValue = baseValue;
 				BattlePassManager.grantProgress(uuid, realValue, false);
 				BattlePassManager.sendPlayerInfo(player, realValue, "Caught a Legendary Pokemon:");
+				//BountyManager listening in
+				for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
+					if (bounty.tags.contains(ObjectiveTag.LEGEND)){
+						BountyManager.grantProgress(event.getPlayer(), bounty.uuid, 1);
+					}
+				}
 			}
 			else if (poke.isUltraBeast()) {
 				int baseValue = BattlePassConfig.pokemon_catch_legendary_base_reward.get();
@@ -53,6 +62,12 @@ public class PXListeners {
 				int realValue = baseValue * (poke.getPokemonLevel() / 25 + 1);
 				BattlePassManager.grantProgress(uuid, realValue, false);
 				BattlePassManager.sendPlayerInfo(player, realValue, "Caught a Pokemon:");
+			}
+			//BountyManager listening in
+			for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
+				if (bounty.tags.contains(ObjectiveTag.CATCH)){
+					BountyManager.grantProgress(event.getPlayer(), bounty.uuid, 1);
+				}
 			}
 		}
 	}
@@ -92,6 +107,12 @@ public class PXListeners {
 			int realValue = baseValue;
 			BattlePassManager.grantProgress(uuid, realValue, false);
 			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated a Legendary Pokemon:");
+			//BountyManager listening in
+			for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
+				if (bounty.tags.contains(ObjectiveTag.LEGEND)){
+					BountyManager.grantProgress(event.player, bounty.uuid, 1);
+				}
+			}
 		}
 		else if (poke.isUltraBeast()) {
 			int baseValue = BattlePassConfig.pokemon_defeat_legendary_base_reward.get();
@@ -104,6 +125,12 @@ public class PXListeners {
 			int realValue = baseValue * (poke.getPokemonLevel() / 25 + 1);
 			BattlePassManager.grantProgress(uuid, realValue, false);
 			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated a Pokemon:");
+		}
+		//BountyManager listening in
+		for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
+			if (bounty.tags.contains(ObjectiveTag.KILL)){
+				BountyManager.grantProgress(event.player, bounty.uuid, 1);
+			}
 		}
 	}
 	
@@ -171,10 +198,18 @@ public class PXListeners {
 	@SubscribeEvent
 	public void onReelIn(FishingEvent.Reel event) {
 		if (event.optEntity.isPresent()) {
+			//BattlePassManager listening in
 			UUID uuid = event.player.getUUID();
 			int baseValue = BattlePassConfig.pixelmon_fish_base_reward.get();
 			BattlePassManager.grantProgress(uuid, baseValue, false);
 			BattlePassManager.sendPlayerInfoToChat(event.player, baseValue, "Caught something with a rod:");
+			
+			//BountyManager listening in
+			for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
+				if (bounty.tags.contains(ObjectiveTag.FISH)){
+					BountyManager.grantProgress(event.player, bounty.uuid, 1);
+				}
+			}
 		}
 	}
 	
@@ -223,5 +258,12 @@ public class PXListeners {
 		
 		BattlePassManager.grantProgress(uuid, realValue, false);
 		BattlePassManager.sendPlayerInfoToChat(event.player, realValue, "Beat a " + extraInfo + " trainer:");
+		
+		//BountyManager listening in
+		for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
+			if (bounty.tags.contains(ObjectiveTag.TRAINER)){
+				BountyManager.grantProgress(event.player, bounty.uuid, 1);
+			}
+		}
 	}
 }

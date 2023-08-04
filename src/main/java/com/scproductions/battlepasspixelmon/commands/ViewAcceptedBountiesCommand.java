@@ -24,7 +24,8 @@ public class ViewAcceptedBountiesCommand {
 		List<Bounty> bounties = BountyManager.getPlayerAcceptedBounties(player.getUUID());
 		int i = 0;
 		for (Bounty bounty : bounties) {
-			player.sendMessage(new StringTextComponent(i++ + ": " + bounty.getFormattedString()), player.getUUID());
+			player.sendMessage(new StringTextComponent(
+					i++ + ": " + bounty.getFormattedString() + " : " + BountyManager.getProgress(player, bounty.uuid) + "/" + bounty.goal + " | Reward: " + bounty.reward), player.getUUID());
 		}
 
 		return 1;

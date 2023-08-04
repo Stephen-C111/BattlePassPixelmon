@@ -71,7 +71,7 @@ public class BountyGUIHandler {
 			if (BountyManager.getPlayerAcceptedBounties(player.getUUID()).contains(bounty)) {
 				continue;
 			}
-			if (numOnPage == 3) {
+			if (numOnPage == 4) {
 				numOnPage = 0;
 				string += "]','[\"\"";
 			}
