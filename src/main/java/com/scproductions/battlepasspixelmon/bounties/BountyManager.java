@@ -251,7 +251,7 @@ public class BountyManager extends WorldSavedData{
 		}
 		
 		//Create X bounties and populate the active board.
-		for (int i = 0; i < 12; i++) {
+		for (int i = 0; i < BattlePassConfig.available_bounties_at_once.get(); i++) {
 			Bounty newBounty = Bounty.createRandomBounty();
 			bm.DATA.put(newBounty.uuid, newBounty);
 			bm.ACTIVE_BOUNTIES.add(newBounty.uuid);

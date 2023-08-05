@@ -53,17 +53,20 @@ public class BountyGUIHandler {
 	
 	public void updateBountyJournal(ServerPlayerEntity player, boolean giveNewBook) throws CommandSyntaxException {
 		boolean found = false;
+		Item book = Items.WRITTEN_BOOK;
+		ItemStack stack = new ItemStack(book, 1);
 		for (ItemStack item : player.inventory.items) { //search for outdated journal and remove it.
-			if (item.getDisplayName().getString() == "Bounty Journal - BattlePassPixelmon") {
-				item.setCount(0);
+			if (item.getHoverName().getString().equals("Bounty Journal")) {
+				//Logger.getLogger("BattlePassPixelmon").info("Found book");
+				stack = item;
 				found = true;
 			}
 		}
+		
 		if (!found && !giveNewBook) {
 			return;
 		}
-		Item book = Items.WRITTEN_BOOK;
-		ItemStack stack = new ItemStack(book, 1);
+		
 		int numOnPage = 0;
 		int i = 0;
 		String string = "{pages:['[\"\"";
@@ -85,6 +88,8 @@ public class BountyGUIHandler {
 		CompoundNBT nbt = JsonToNBT.parseTag(string);
 		//Logger.getLogger("BattlePassPixelmon").info(string);
 		stack.setTag(nbt);
-		ItemHandlerHelper.giveItemToPlayer(player, stack);
+		if (!found) {
+			ItemHandlerHelper.giveItemToPlayer(player, stack);
+		}
 	}
 }

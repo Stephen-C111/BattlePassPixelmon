@@ -74,9 +74,9 @@ public class BattlePassConfig {
     	boss_bar_default_title = BUILDER.comment("Change the phrase on the boss bar, default is \'Battle Pass | \'").define("BossBarDefaultTitle", "Battle Pass | ");
     	
     	minutes_to_refresh_board = BUILDER.comment("Time it takes for the bounty board to refresh in minutes.").define("MinutesToRefreshBoard", 30);
-    	available_bounties_at_once = BUILDER.comment("").define("", 12);
+    	available_bounties_at_once = BUILDER.comment("The available bounties in the journal at once, default of 12.").define("MaxBountiesOnBoard", 12);
     	
-    	bounty_fish_amount = BUILDER.comment("Base amount of bounties with tag: FISH").define("BountyFishAmount", 50);
+    	bounty_fish_amount = BUILDER.comment("Base amount of bounties with tag: FISH").define("BountyFishAmount", 25);
     	bounty_fish_reward = BUILDER.comment("Base reward per amount in bounties with tag: FISH").define("BountyFishReward", 3);
     	
     	bounty_catch_amount = BUILDER.comment("Base amount of bounties with tag: CATCH").define("BountyCatchAmount", 10);

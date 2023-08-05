@@ -1,12 +1,15 @@
 package com.scproductions.battlepasspixelmon;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.scproductions.battlepasspixelmon.bounties.BountyManager;
 import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty;
 import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty.ObjectiveTag;
+import com.scproductions.battlepasspixelmon.bounties.gui.BountyGUIHandler;
 import com.scproductions.battlepasspixelmon.commands.AcceptBountyCommand;
 import com.scproductions.battlepasspixelmon.commands.CheckRankCommand;
 import com.scproductions.battlepasspixelmon.commands.ClaimRewardPacksCommand;
 import com.scproductions.battlepasspixelmon.commands.ClaimRewardsCommand;
+import com.scproductions.battlepasspixelmon.commands.CompleteAllBountiesCommand;
 import com.scproductions.battlepasspixelmon.commands.DiscardBountyCommand;
 import com.scproductions.battlepasspixelmon.commands.GetJournalCommand;
 import com.scproductions.battlepasspixelmon.commands.GiveProgressCommand;
@@ -23,7 +26,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.brewing.PlayerBrewedPotionEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -52,6 +54,7 @@ public class ForgeListeners {
 		new AcceptBountyCommand(event.getDispatcher());
 		new ViewAcceptedBountiesCommand(event.getDispatcher());
 		new DiscardBountyCommand(event.getDispatcher());
+		new CompleteAllBountiesCommand(event.getDispatcher());
 		
 		ConfigCommand.register(event.getDispatcher());
 	}
@@ -79,12 +82,13 @@ public class ForgeListeners {
 	}
 	
 	@SubscribeEvent
-	public static void onPlayerJoin(EntityJoinWorldEvent event) {
+	public static void onPlayerJoin(EntityJoinWorldEvent event) throws CommandSyntaxException {
 		//Check to see if joined player has a battlepass or not.
 		if (event.getEntity() instanceof ServerPlayerEntity) {
 			if (BattlePassManager.getRank(event.getEntity().getUUID()) == -999) {
 				BattlePassManager.putData(event.getEntity().getUUID(), 0, 0, 0);
 			}
+			BountyGUIHandler.bgui.updateBountyJournal((ServerPlayerEntity) event.getEntity(), false);
 			//BountyGUIHandler.bgui.openBountyBoard((ServerPlayerEntity) event.getEntity());
 		}
 	}
