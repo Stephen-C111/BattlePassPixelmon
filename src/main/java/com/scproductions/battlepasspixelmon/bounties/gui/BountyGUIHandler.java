@@ -69,6 +69,7 @@ public class BountyGUIHandler {
 		String string = "{pages:['[\"\"";
 		for (Bounty bounty : BountyManager.getActiveBounties()) {
 			if (BountyManager.getPlayerAcceptedBounties(player.getUUID()).contains(bounty)) {
+				i++; //increment but do not add to the book.
 				continue;
 			}
 			if (numOnPage == 4) {
@@ -82,7 +83,7 @@ public class BountyGUIHandler {
 		}
 		string += "]'],title:\"Bounty Journal\",author:BattlePassPixelmon,display:{Lore:[\"Right click to open your bounty journal, and click on different bounties to claim them and start working on them!\"]}}";
 		CompoundNBT nbt = JsonToNBT.parseTag(string);
-		Logger.getLogger("BattlePassPixelmon").info(string);
+		//Logger.getLogger("BattlePassPixelmon").info(string);
 		stack.setTag(nbt);
 		ItemHandlerHelper.giveItemToPlayer(player, stack);
 	}
