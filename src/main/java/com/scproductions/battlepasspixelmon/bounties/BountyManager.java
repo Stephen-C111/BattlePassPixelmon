@@ -29,6 +29,7 @@ import com.scproductions.battlepasspixelmon.bounties.gui.BountyGUIHandler;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -287,36 +288,49 @@ public class BountyManager extends WorldSavedData{
 	}
 	
 	public static boolean acceptBounty(UUID playerUUID, UUID bountyUUID) {
+		ServerPlayerEntity player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
 		BountyManager bm = getDataHandler();
 		Collection<BountyProgressTracker> tempList = bm.ACCEPTED_BOUNTIES.get(playerUUID);
+		if (tempList.size() > 4) {
+			player.sendMessage(new StringTextComponent("You can't hold any more bounties!"), playerUUID);
+			return false;
+		}
 		for (BountyProgressTracker bpt : tempList) {
 			if (bpt.uuid == bountyUUID) {
+				player.sendMessage(new StringTextComponent("You are already working on this bounty."), playerUUID);
 				return false;
 			}
 		}
 		tempList = bm.COMPLETED_BOUNTIES.get(playerUUID);
 		for (BountyProgressTracker bpt : tempList) {
 			if (bpt.uuid == bountyUUID) {
+				player.sendMessage(new StringTextComponent("You have already completed this bounty."), playerUUID);
 				return false;
 			}
 		}
-		
+		player.sendMessage(new StringTextComponent("Accepted a new bounty: " + BountyManager.getBounty(bountyUUID).getFormattedString()), playerUUID);
 		bm.ACCEPTED_BOUNTIES.put(playerUUID, new BountyProgressTracker(bountyUUID));
 		bm.DATA.get(bountyUUID).players++;
-		for (BountyProgressTracker bpt : bm.ACCEPTED_BOUNTIES.get(playerUUID)) {
-			LOGGER.info(bpt.uuid + " progress: " + bpt.progress);
-		}
+		
+		//for (BountyProgressTracker bpt : bm.ACCEPTED_BOUNTIES.get(playerUUID)) {
+		//	LOGGER.info(bpt.uuid + " progress: " + bpt.progress);
+		//}
 		bm.setDirty();
 		return true;
 	}
 	
 	public static  boolean discardBounty(UUID playerUUID, UUID bountyUUID) {
 		BountyManager bm = getDataHandler();
-		if (bm.ACCEPTED_BOUNTIES.containsEntry(playerUUID, bountyUUID)) {
-			bm.ACCEPTED_BOUNTIES.remove(playerUUID, bountyUUID);
-			bm.DATA.get(bountyUUID).players--;
-			bm.setDirty();
-			return true;
+		if (bm.ACCEPTED_BOUNTIES.containsKey(playerUUID)) {
+			for (BountyProgressTracker bpt : bm.ACCEPTED_BOUNTIES.get(playerUUID)) {
+				if (bpt.uuid.toString().equals(bountyUUID.toString())) {
+					bm.ACCEPTED_BOUNTIES.remove(playerUUID, bpt);
+					bm.DATA.get(bountyUUID).players--;
+					bm.setDirty();
+					return true;
+				}
+				//LOGGER.info(bpt.uuid + " bpt.uuid != bountyUUID " + bountyUUID);
+			}
 		}
 		return false;
 	}
