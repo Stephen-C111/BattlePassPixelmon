@@ -23,6 +23,7 @@ import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.pixelmonmod.pixelmon.api.pokemon.Element;
+import com.scproductions.battlepasspixelmon.BattlePassConfig;
 import com.scproductions.battlepasspixelmon.BattlePassManager;
 import com.scproductions.battlepasspixelmon.Main;
 import com.scproductions.battlepasspixelmon.bounties.gui.BountyGUIHandler;
@@ -584,12 +585,12 @@ public class BountyManager extends WorldSavedData{
 		
 		public enum ObjectiveTag {
 			//NAME (baseReward, baseAmount),
-			KILL (5, 10),
-			CATCH (10, 5),
-			LEGEND (500, 1),
-			TRAINER (100, 1),
-			BOSS (100, 1),
-			FISH (50, 10);
+			KILL (BattlePassConfig.bounty_kill_reward.get(), BattlePassConfig.bounty_kill_amount.get()),
+			CATCH (BattlePassConfig.bounty_catch_reward.get(), BattlePassConfig.bounty_catch_amount.get()),
+			LEGEND (BattlePassConfig.bounty_legend_reward.get(), BattlePassConfig.bounty_legend_amount.get()),
+			TRAINER (BattlePassConfig.bounty_trainer_reward.get(), BattlePassConfig.bounty_trainer_amount.get()),
+			BOSS (BattlePassConfig.bounty_boss_reward.get(), BattlePassConfig.bounty_boss_amount.get()),
+			FISH (BattlePassConfig.bounty_fish_reward.get(), BattlePassConfig.bounty_fish_amount.get());
 			
 			int baseReward;
 			int baseAmount;

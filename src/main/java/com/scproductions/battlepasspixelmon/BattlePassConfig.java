@@ -29,6 +29,25 @@ public class BattlePassConfig {
     public static final ForgeConfigSpec.ConfigValue<String> boss_bar_default_title;
     
     public static final ForgeConfigSpec.ConfigValue<Integer> minutes_to_refresh_board;
+    public static final ForgeConfigSpec.ConfigValue<Integer> available_bounties_at_once;
+    
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_fish_amount;
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_fish_reward;
+    
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_catch_amount;
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_catch_reward;
+    
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_kill_amount;
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_kill_reward;
+    
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_boss_amount;
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_boss_reward;
+    
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_legend_amount;
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_legend_reward;
+    
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_trainer_amount;
+    public static final ForgeConfigSpec.ConfigValue<Integer> bounty_trainer_reward;
     
     static {
     	BUILDER.push("Config for BattlePassPixelmon");
@@ -55,6 +74,25 @@ public class BattlePassConfig {
     	boss_bar_default_title = BUILDER.comment("Change the phrase on the boss bar, default is \'Battle Pass | \'").define("BossBarDefaultTitle", "Battle Pass | ");
     	
     	minutes_to_refresh_board = BUILDER.comment("Time it takes for the bounty board to refresh in minutes.").define("MinutesToRefreshBoard", 30);
+    	available_bounties_at_once = BUILDER.comment("").define("", 12);
+    	
+    	bounty_fish_amount = BUILDER.comment("Base amount of bounties with tag: FISH").define("BountyFishAmount", 50);
+    	bounty_fish_reward = BUILDER.comment("Base reward per amount in bounties with tag: FISH").define("BountyFishReward", 3);
+    	
+    	bounty_catch_amount = BUILDER.comment("Base amount of bounties with tag: CATCH").define("BountyCatchAmount", 10);
+    	bounty_catch_reward = BUILDER.comment("Base reward per amount in bounties with tag: CATCH").define("BountyCatchReward", 12);
+    	
+    	bounty_kill_amount = BUILDER.comment("Base amount of bounties with tag: KILL").define("BountyKillAmount", 20);
+    	bounty_kill_reward = BUILDER.comment("Base reward per amount in bounties with tag: KILL").define("BountyKillReward", 8);
+    	
+    	bounty_boss_amount = BUILDER.comment("Base amount of bounties with tag: BOSS").define("BountyBossAmount", 3);
+    	bounty_boss_reward = BUILDER.comment("Base reward per amount in bounties with tag: BOSS").define("BountyBossReward", 80);
+    	
+    	bounty_legend_amount = BUILDER.comment("Base amount of bounties with tag: LEGEND").define("BountyLegendAmount", 1);
+    	bounty_legend_reward = BUILDER.comment("Base reward per amount in bounties with tag: LEGEND").define("BountyLegendReward", 500);
+    	
+    	bounty_trainer_amount = BUILDER.comment("Base amount of bounties with tag: TRAINER").define("BountyTrainerAmount", 3);
+    	bounty_trainer_reward = BUILDER.comment("Base reward per amount in bounties with tag: TRAINER").define("BountyTrainerReward", 100);
     	
     	BUILDER.pop();
     	SPEC = BUILDER.build();
