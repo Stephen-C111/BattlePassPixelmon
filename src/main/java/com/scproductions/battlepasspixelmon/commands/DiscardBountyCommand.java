@@ -15,9 +15,9 @@ public class DiscardBountyCommand {
 	public DiscardBountyCommand(CommandDispatcher<CommandSource> dispatcher) {
 		dispatcher.register(
 				Commands.literal("discardbounty")
-						.then(Commands.argument("number", IntegerArgumentType.integer(1))
-							.then(Commands.literal("--taskprogresswillbereset"))
-								.executes((command) -> {return discardBounty(command.getSource(), IntegerArgumentType.getInteger(command, "number"));})));
+						.then(Commands.argument("number", IntegerArgumentType.integer(0))
+							.then(Commands.literal("--taskprogresswillbereset")
+								.executes((command) -> {return discardBounty(command.getSource(), IntegerArgumentType.getInteger(command, "number"));}))));
 	}
 	
 	private int discardBounty(CommandSource source, int number) throws CommandSyntaxException {
