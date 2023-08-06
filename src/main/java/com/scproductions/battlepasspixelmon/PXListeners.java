@@ -1,5 +1,6 @@
 package com.scproductions.battlepasspixelmon;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -13,10 +14,13 @@ import com.pixelmonmod.pixelmon.api.events.EggHatchEvent;
 import com.pixelmonmod.pixelmon.api.events.EvolveEvent;
 import com.pixelmonmod.pixelmon.api.events.FishingEvent;
 import com.pixelmonmod.pixelmon.api.events.PokemonReceivedEvent;
+import com.pixelmonmod.pixelmon.api.pokemon.Element;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import com.pixelmonmod.pixelmon.api.pokemon.boss.BossTier;
 import com.pixelmonmod.pixelmon.api.pokemon.boss.BossTiers;
 import com.pixelmonmod.pixelmon.battles.controller.participants.WildPixelmonParticipant;
 import com.pixelmonmod.pixelmon.entities.npcs.NPCTrainer;
+import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
 import com.scproductions.battlepasspixelmon.bounties.BountyManager;
 import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty;
 import com.scproductions.battlepasspixelmon.bounties.BountyManager.Bounty.ObjectiveTag;
@@ -66,7 +70,19 @@ public class PXListeners {
 			//BountyManager listening in
 			for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
 				if (bounty.tags.contains(ObjectiveTag.CATCH)){
-					BountyManager.grantProgress(event.getPlayer(), bounty.uuid, 1);
+					if (bounty.elements.size() <= 0) {
+						BountyManager.grantProgress(event.getPlayer(), bounty.uuid, 1);
+					}
+					else {
+						for (Element element : poke.getForm().getTypes()) {
+							if (bounty.elements.contains(element)) {
+								BountyManager.grantProgress(event.getPlayer(), bounty.uuid, 1);
+								break;
+							}
+						}
+						
+					}
+					
 				}
 			}
 		}
@@ -78,35 +94,52 @@ public class PXListeners {
 		UUID uuid = player.getUUID();
 		WildPixelmonParticipant wpp = event.wpp;
 		Pokemon poke = wpp.getFaintedPokemon().pokemon;
-		/* TODO: implement pixelmon boss tier reward multiplier.
-		if (POKEMON IS A BOSS) { //figure out the api for this later.
-			switch (POKEMON BOSS TIER) {
-				case BossTiers.COMMON: realValue *= 1.25;
-				break;
-				case BossTiers.UNCOMMON: realValue *= 1.5;
-				break;
-				case BossTiers.RARE: realValue *= 1.75;
-				break;
-				case BossTiers.EPIC: realValue *= 2;
-				break;
-				case BossTiers.LEGENDARY: realValue *= 2.5;
-				break;
-				case BossTiers.ULTIMATE: realValue *= 3;
-				break;
-				case BossTiers.DROWNED: realValue *= 1.4;
-				break;
-				case BossTiers.EQUAL: realValue *= 1.2;
-				break;
-				case BossTiers.HAUNTED: realValue *= 1.4;
-				break;
-				default: break;
+		Optional<PixelmonEntity> entity = poke.getPixelmonEntity();
+		//LOGGER.info(entity.get().isBossPokemon() + " | " + entity.get().getBossTier().getID());
+		double realValueMultiplier = 1;
+		String bossString = "";
+		BossTier tier = null;
+		if (entity.get().isBossPokemon()) { //As far as I can tell, getting the boss tier of a single pokemon is not possible.
+			
+			//BountyManager listening in
+			for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
+				if (bounty.tags.contains(ObjectiveTag.BOSS)){
+					BountyManager.grantProgress(event.player, bounty.uuid, 1);
+				}
 			}
-		}*/
+			
+			tier = entity.get().getBossTier();
+			bossString += tier.getID() + " ";
+			switch (entity.get().getBossTier().getID()) {
+				case "common": realValueMultiplier = 20;
+				break;
+				case "uncommon": realValueMultiplier = 30;
+				break;
+				case "rare": realValueMultiplier = 50;
+				break;
+				case "epic": realValueMultiplier = 70;
+				break;
+				case "legendary": realValueMultiplier = 90;
+				break;
+				case "ultimate": realValueMultiplier = 150;
+				break;
+				case "drowned": realValueMultiplier = 20;
+				break;
+				case "equal": realValueMultiplier = 20;
+				break;
+				case "haunted": realValueMultiplier = 20;
+				break;
+				default: realValueMultiplier = 1;
+				break;
+				
+				
+			}
+		}
 		if (poke.isLegendary()) {
 			int baseValue = BattlePassConfig.pokemon_defeat_legendary_base_reward.get();
-			int realValue = baseValue;
+			int realValue = (int) (baseValue * realValueMultiplier);
 			BattlePassManager.grantProgress(uuid, realValue, false);
-			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated a Legendary Pokemon:");
+			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated a " + bossString + "Legendary Pokemon:");
 			//BountyManager listening in
 			for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
 				if (bounty.tags.contains(ObjectiveTag.LEGEND)){
@@ -116,20 +149,39 @@ public class PXListeners {
 		}
 		else if (poke.isUltraBeast()) {
 			int baseValue = BattlePassConfig.pokemon_defeat_legendary_base_reward.get();
-			int realValue = baseValue / 2;
+			int realValue = (int) ((baseValue / 2) * realValueMultiplier);
 			BattlePassManager.grantProgress(uuid, realValue, false);
-			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated an Ultra Beast:");
+			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated an " + bossString + "Ultra Beast:");
 		}
 		else {
 			int baseValue = BattlePassConfig.pokemon_defeat_base_reward.get();
-			int realValue = baseValue * (poke.getPokemonLevel() / 25 + 1);
+			int realValue = 0;
+			if (tier == null) {
+				realValue = (int) ((baseValue * (poke.getPokemonLevel() / 25 + 1)));
+			}
+			else {
+				realValue = (int) (baseValue * realValueMultiplier);
+			}
+			
 			BattlePassManager.grantProgress(uuid, realValue, false);
-			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated a Pokemon:");
+			BattlePassManager.sendPlayerInfoToChat(player, realValue, "Defeated a " + bossString + "Pokemon:");
 		}
 		//BountyManager listening in
 		for (Bounty bounty : BountyManager.getPlayerAcceptedBounties(uuid)) {
 			if (bounty.tags.contains(ObjectiveTag.KILL)){
-				BountyManager.grantProgress(event.player, bounty.uuid, 1);
+				if (bounty.elements.size() <= 0) {
+					BountyManager.grantProgress(player, bounty.uuid, 1);
+				}
+				else {
+					for (Element element : poke.getForm().getTypes()) {
+						if (bounty.elements.contains(element)) {
+							BountyManager.grantProgress(player, bounty.uuid, 1);
+							break;
+						}
+					}
+					
+				}
+				
 			}
 		}
 	}

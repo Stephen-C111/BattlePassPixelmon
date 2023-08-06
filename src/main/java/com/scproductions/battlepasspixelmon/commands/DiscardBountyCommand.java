@@ -1,5 +1,7 @@
 package com.scproductions.battlepasspixelmon.commands;
 
+import java.util.List;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -24,7 +26,15 @@ public class DiscardBountyCommand {
 	private int discardBounty(CommandSource source, int number) throws CommandSyntaxException {
 		
 		ServerPlayerEntity player = source.getPlayerOrException();
-		Bounty bounty = BountyManager.getPlayerAcceptedBounties(player.getUUID()).get(number);
+		List<Bounty> bounties = BountyManager.getPlayerAcceptedBounties(player.getUUID());
+		if (bounties.size() <= 0) {
+			player.sendMessage(new StringTextComponent("You have no bounties to discard."), player.getUUID());
+			return -1;
+		}
+		if (number >= bounties.size()) {
+			player.sendMessage(new StringTextComponent("Invalid number received. Remember to use the number by the bounty in /acceptedbounties."), player.getUUID());
+		}
+		Bounty bounty = bounties.get(number);
 		BountyManager.discardBounty(player.getUUID(), bounty.uuid);
 		player.sendMessage(new StringTextComponent("Discarded the following bounty: " + bounty.getFormattedString() + " You can pick it back up if it's still active, with reset progress."), player.getUUID());
 		BountyGUIHandler.bgui.updateBountyJournal(player, false);

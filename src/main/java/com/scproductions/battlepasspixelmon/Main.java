@@ -132,7 +132,7 @@ public class Main
     class BountyScheduleTask extends TimerTask {
 		@Override
 		public void run() {
-			LOGGER.info("running automatic task");
+			LOGGER.info("Refreshing the Bounty Board");
 			try {
 				BountyManager.refreshBoard();
 			} catch (CommandSyntaxException e) {
@@ -143,9 +143,9 @@ public class Main
 			for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()){
 				player.sendMessage(new StringTextComponent("The Bounty Board has refreshed, type /getjournal to see the new bounties!"), player.getUUID());
 			}
-			for (Bounty bounty : BountyManager.getActiveBounties()) {
-	        	LOGGER.info(bounty.getFormattedString());
-	        }
+			//for (Bounty bounty : BountyManager.getActiveBounties()) {
+	        //	LOGGER.info(bounty.getFormattedString());
+	        //}
 		}
     	
     }

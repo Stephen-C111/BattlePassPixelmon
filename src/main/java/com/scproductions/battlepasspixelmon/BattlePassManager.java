@@ -52,7 +52,7 @@ public class BattlePassManager extends WorldSavedData {
 		Logger.getLogger("BattlePassPixelmon").info("Beginning save process...");
 		//Save each HashMap entry as "data1", "data2"... "datai". For data storage.
 		for(Iterator<Map.Entry<UUID, BattlePass>> iterator = DATA.entrySet().iterator(); iterator.hasNext();) {
-			Logger.getLogger("BattlePassPixelmon").info("Saving data" + i + "...");
+			//Logger.getLogger("BattlePassPixelmon").info("Saving data" + i + "...");
 			saveData.put("data" + i++, iterator.next().getValue().serialize());
 		}
 		Logger.getLogger("BattlePassPixelmon").info("Packing data into nbt...");
@@ -66,7 +66,7 @@ public class BattlePassManager extends WorldSavedData {
 		BattlePassManager bpm = world.getDataStorage().computeIfAbsent(BattlePassManager::new, BattlePassManager.NAME);
 		//Check for existing playerdata.
 		if (bpm.DATA.containsKey(object.uuid)) {
-			Logger.getLogger("BattlePassPixelmon").info("UUID entry found, updating entry...");
+			//Logger.getLogger("BattlePassPixelmon").info("UUID entry found, updating entry...");
 			bpm.DATA.replace(object.uuid, object);
 			BossBarHandler.bpm.updateBossBar(object.uuid);
 		}

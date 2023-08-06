@@ -127,7 +127,7 @@ public class BountyManager extends WorldSavedData{
 				
 				try {
 					for (BountyProgressTracker tracker : entries.trackers) {
-						LOGGER.info("Putting " + entries.uuid + " : " + tracker.uuid + " : " + tracker.progress);
+						//LOGGER.info("Putting " + entries.uuid + " : " + tracker.uuid + " : " + tracker.progress);
 						ACCEPTED_BOUNTIES.put(entries.uuid, tracker);
 					}
 				}
@@ -234,7 +234,7 @@ public class BountyManager extends WorldSavedData{
 		//Clear the active board.
 		bm.ACTIVE_BOUNTIES.clear();
 		//Clear old, unused bounties.
-		LOGGER.info("Removing Old Entries...");
+		//LOGGER.info("Removing Old Entries...");
 		List<UUID> removeOldList = new ArrayList<UUID>();
 		for (Entry bountyEntry : bm.DATA.entrySet()) {
 			Bounty b = (Bounty) bountyEntry.getValue();
@@ -259,6 +259,7 @@ public class BountyManager extends WorldSavedData{
 		for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
 			BountyGUIHandler.bgui.updateBountyJournal(player, false);
 		}
+		LOGGER.info("Bounties active and/or being undertaken: " + bm.DATA.size());
 		refreshing = false; //unlock the board.
 		return true;
 	}
@@ -292,7 +293,7 @@ public class BountyManager extends WorldSavedData{
 		ServerPlayerEntity player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
 		BountyManager bm = getDataHandler();
 		Collection<BountyProgressTracker> tempList = bm.ACCEPTED_BOUNTIES.get(playerUUID);
-		if (tempList.size() > 4) {
+		if (tempList.size() >= 4) {
 			player.sendMessage(new StringTextComponent("You can't hold any more bounties!"), playerUUID);
 			return false;
 		}
@@ -379,7 +380,7 @@ public class BountyManager extends WorldSavedData{
 					bm.DATA.get(bountyUUID).players--;
 					//Dispense reward
 					BattlePassManager.grantProgress(playerUUID, bm.DATA.get(bountyUUID).reward, false);
-					BattlePassManager.sendPlayerInfo(player, bm.DATA.get(bountyUUID).reward, "Completed a Bounty:");
+					BattlePassManager.sendPlayerInfoToChat(player, bm.DATA.get(bountyUUID).reward, "Completed a Bounty:");
 					bm.setDirty();
 					return true;
 				}
@@ -481,8 +482,15 @@ public class BountyManager extends WorldSavedData{
 				
 				s += goal + " ";
 				
+				int elementSize = 0;
 				for (Element element : elements) {
-					s += element.toString().toLowerCase() + " ";
+					if (elementSize++ == elements.size() - 1) {
+						s += element.toString().toLowerCase() + " ";
+					}
+					else {
+						s += element.toString().toLowerCase() + ", or ";
+					}
+					
 				}
 				s += "Pokemon.";
 				//Example: Catch or Defeat 50 fire water grass Pokemon.
@@ -534,8 +542,15 @@ public class BountyManager extends WorldSavedData{
 					if (i == -1) {
 						continue;
 					}
-					bounty.addElement(Element.values()[i]);
+					if (Element.values()[i] == Element.MYSTERY) { //don't use the mystery element.
+						elementAmount--;
+					}
+					else {
+						bounty.addElement(Element.values()[i]);
+					}
+					
 				}
+				
 				
 				if (elementAmount > 0) {
 					bounty.reward *= (1 + (3 / elementAmount));
