@@ -3,7 +3,11 @@ This is a BattlePass mod for use on Pixelmon servers.
 
 It responds to events such as catching and fighting pokemon, as well as other vanilla events to encourage playing the game how the player sees fit.
 Each player has a copy of a BattlePass that tracks their rank, progress to the next rank, and how many rewards they are eligible to claim.
-Players receive rewards for specific ranks via the RewardPack System explained below. As of 0.4.3, players can claim random rewards for each rank they've climbed.
+Players receive rewards for specific ranks via the RewardPack System explained below. Players can claim random rewards for each rank they've climbed.
+
+In addition to the tracked activities, players can accept bounties that require specific objectives to be completed for a larger rank progress reward.
+
+The mod is highly configurable, most values can be changed with the config file to suit your server's needs.
 
 ![javaw_YRIcSBm5Dx](https://github.com/Stephen-C111/BattlePassPixelmon/assets/30613192/06e74a4b-ebf1-4ece-b9a7-5cc31206b241)
 
