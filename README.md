@@ -81,3 +81,42 @@ The bounties players can choose from will reset every 30 (by default) minutes, a
 Players can use /acceptedbounties to see which bounties they own. They can discard bounties that are too difficult, as well.
 
 ![javaw_9SPKYb0wke](https://github.com/Stephen-C111/BattlePassPixelmon/assets/30613192/e3ecba34-eb75-4360-9da2-922f2b18bb0b)
+
+## Getting Started - Operators
+If you've installed the mod, you're probably going to want to know how to validate that it's working properly before launching it on your server. Here's some first steps to get you comfortable with the mod.
+### In game
+- Start by making sure the mod is in the 'mods' folder, and not the 'plugins' folder.
+- Launch your server (preferably a test server, but I'll go over how to undo any changes you may have made in a moment.)
+- Type /getjournal to see the active list of bounties, and just start clicking some that are easy enough for you to do.
+- Type /acceptedbounties to see your personal list of accepted bounties, and re-type it to validate that you are gaining progress for engaging with the activity specified.
+- Type /completeallbounties [Your player name] --irreversiblecompletion (For --arguments like this, simply press tab. I put these in place as warnings for actions that are not easy to revert from.)
+- Type /newrandomreward [any positive number - higher means it's more likely to be this reward] [item - minecraft:apple for example] [amount]
+- Type /newrewardpack [any positive number - try rank 0 for a starter kit functionality] [item] [amount]
+- Type /giveprogress <Your player name> <any positive number - I recommend 10000>.
+- Type /claimranks and /claimrewardpacks
+- Note how the rewards you added before should have been given to you if you met the criteria (and got lucky with your random roll.)
+- Type /resetrank <Your player name> followed by the 2 --arguments (Press TAB). This will delete the rank progress you built up during testing. (Note that there's a minor bug that causes the bossbar to disappear until restart if you do this command.)
+### In server files
+Now that you've tested out the commands in game, you should know how to configure the mod from outside the game environment, particularly if you need to remove rewardpacks or randomrewards, or need to reset progress on the mod.
+- Navigate to your server files
+- In \config, you will find a file named similarly to 'battlepasspixelmon-commonconfig-0.x.x.toml'
+- Open this file and change any settings you like, one of interest is the BossBarDefaultTitle, which allows you to change the display of the bossbar to say whatever you like before the rank information.
+- In \defaultconfigs you will find 4 different .json files. You will also find a .txt preceded with 'DELETED_DATA_' which details the deleted player data when you perform /resetrank.
+- For RewardPackConfig and RankupRewardConfig, read the above section titled "Creating your own rewardpacks" to understand how these files work. Feel free to remove any rewards that seem unfair for your server environment.
+- Next, I'll show you how to reset all of the data for the mod, excluding the changes you may have made to rewards.
+- In \defaultconfigs, you can delete AcceptedBounties.json and CompletedBounties.json
+- In \world\data, you can delete battlepasspixelmon_BattlePassManager.dat and battlepasspixelmon_BountyManager.dat.
+- These files will regenerate as needed, without player intervention.
+
+This should be all you need to be familiar with the mod as an operator, read through the commands and decide how you would like to inform your players about the commands available to them.
+
+## Getting Started - Normal Players
+If you're not concerned with admin commands, here are some first steps you can take as a player to experience this mod.
+- Type /getjournal and select a bounty from the book you'd like to complete. You can hold up to 4 by default.
+- Type /acceptedbounties to check up on your progress with your bounties.
+- Type /claimranks and /claimrewardpacks to claim any valid rewards.
+- Type /togglebattlepassbossbar to turn the boss bar off, if you prefer it off. Type /checkrank to check your rank if you do this.
+- Type /togglebattlepassmessages to turn off permanent chat messages, if you feel the mod sends you too much spam to your chatbox.
+- Type /discardbounty [number] : The number in question will be either 0, 1, 2, or 3. These correspond to the bounties seen when you type /acceptedbounties.
+
+Those should be all the commands you need to know to use the mod as a non-operator player.
