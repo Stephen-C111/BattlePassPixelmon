@@ -1,5 +1,5 @@
 # BattlePassPixelmon
-This is a BattlePass mod for use on Pixelmon servers.
+This is a BattlePass mod for use on 1.16.5 Pixelmon servers. Compatible with 9.1.7 at least.
 
 It responds to events such as catching and fighting pokemon, as well as other vanilla events to encourage playing the game how the player sees fit.
 Each player has a copy of a BattlePass that tracks their rank, progress to the next rank, and how many rewards they are eligible to claim.
