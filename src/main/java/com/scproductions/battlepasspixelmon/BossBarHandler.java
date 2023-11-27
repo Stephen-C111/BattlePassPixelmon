@@ -31,15 +31,14 @@ public class BossBarHandler {
 	
 	public void createNewBossBar(ServerPlayerEntity player) {
 		UUID uuid = player.getUUID();
-		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
 		CustomServerBossInfo info = new CustomServerBossInfo(new ResourceLocation("battlepasspixelmon_" + uuid.toString()), new StringTextComponent(getBarString(uuid)));
 		DATA.put(uuid, info);
 		updateBossBar(player.getUUID());
 	}
 	
 	public void updateBossBar(UUID uuid) {
-		ServerWorld world = ServerLifecycleHooks.getCurrentServer().overworld();
-		ServerPlayerEntity player = (ServerPlayerEntity) world.getEntity(uuid);
+		ServerPlayerEntity player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(uuid);
+		if (player == null) return;
 		if (!DATA.containsKey(uuid)) {
 			createNewBossBar(player);
 			return;
